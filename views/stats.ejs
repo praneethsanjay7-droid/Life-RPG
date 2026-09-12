@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Progress Statistics</h1>
+    <div>
+        <button id="dailyBtn" class="active">Daily</button>
+        <button id="weeklyBtn">Weekly</button>
+        <button id="monthlyBtn">Monthly</button>
+    </div>
+    <canvas id="progressChart" width="400" height="200"></canvas>
+    <br>
+    <a href="/allTasks">Back to all tasks</a>
+
+    <script>
+        const dailyCompleted = <%= dailyCompleted %>;
+        const dailyRemaining = <%= dailyRemaining %>;
+
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Today'],
+                datasets: [
+                    {
+                        label: 'Completed',
+                        data: [dailyCompleted],
+                        backgroundColor: 'rgba(75, 192, 75, 0.7)',
+                        stack: 'stack1'
+                    },
+                    {
+                        label: 'Remaining',
+                        data: [dailyRemaining],
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        stack: 'stack1'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+
+        document.getElementById('dailyBtn').addEventListener('click', function() {
+            chart.data.labels = ['Today'];
+            chart.data.datasets[0].data = [dailyCompleted];
+            chart.data.datasets[1].data = [dailyRemaining];
+            chart.update();
+        });
+    </script>
+</body>
+</html>
