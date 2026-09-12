@@ -35,14 +35,15 @@
 html { scroll-behavior: smooth; }
 
 body.dc-body {
-  background-color: var(--dc-bg);
-  color: #f4e4b5; /* Brighter parchment for better contrast */
+  background-color: #020202 !important;
+  color: #a0895c !important;
   font-family: var(--font-crimson);
-  font-size: 17px; /* Slightly larger text */
-  font-weight: 600; /* Thicker/darker font weight */
+  font-size: 17px;
+  font-weight: 600;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
 }
 
 .dc-vignette {
@@ -877,3 +878,45 @@ body.dc-body {
 .dc-text-muted { color: var(--dc-bronze); }
 .dc-text-cinzel { font-family: var(--font-cinzel); }
 .hidden { display: none !important; }
+
+/* ========== DARK MODE ENFORCEMENT ========== */
+.dc-body, body.dc-body { background-color: #020202 !important; color: #a0895c !important; }
+
+.dc-kingdom-time { color: #c4aa78 !important; text-shadow: 0 1px 4px rgba(0,0,0,0.95) !important; background: rgba(0,0,0,0.9) !important; }
+.dc-kingdom-name { color: #c4aa78 !important; text-shadow: 0 2px 6px rgba(0,0,0,0.98) !important; background: rgba(0,0,0,0.9) !important; }
+.dc-kingdom-status { text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; }
+.dc-conquered-item-name { color: #8a7a60 !important; }
+.dc-evolution-label { color: #7a6018 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; }
+.dc-evolution-fill { background: linear-gradient(90deg, #c85008, #b8992e) !important; }
+.dc-evolution-panel { background: rgba(0,0,0,0.5) !important; }
+
+.dc-kingdom-flame { filter: drop-shadow(0 0 4px rgba(0,0,0,0.9)); }
+
+/* ========== DRAMATIC DARK ENHANCEMENT ========== */
+.dc-header { background: #010101 !important; box-shadow: 0 4px 30px rgba(0,0,0,0.95) !important; }
+.dc-header-brand { color: #b8992e !important; text-shadow: 0 0 8px rgba(184,153,46,0.4), 0 1px 4px rgba(0,0,0,0.9) !important; }
+.dc-stat-badge { background: linear-gradient(135deg, #1a1818, #252222) !important; border-color: #7a6018 !important; color: #c4aa78 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.7) !important; }
+.dc-stat-badge span { color: #c8a83e !important; }
+.dc-sidebar { background: #0a0808 !important; border-left-color: #7a6018 !important; box-shadow: -4px 0 25px rgba(0,0,0,0.8) !important; }
+.dc-sidebar-header { color: #b8992e !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; border-bottom-color: #2d2828 !important; }
+.dc-map { background: #030202 !important; }
+
+.dc-map::before { border-color: rgba(184,153,46,0.08) !important; }
+
+/* ========== INLINE OVERRIDE CLASSES ========== */
+.dc-override-bronze { color: #7a6018 !important; }
+.dc-override-parchment { color: #a0895c !important; }
+.dc-override-parchment2 { color: #c4aa78 !important; }
+.dc-override-iron2 { color: #2d2828 !important; }
+.dc-override-dark { color: #020202 !important; }
+.dc-overlay-bg { background: rgba(0,0,0,0.95) !important; }
+
+/* ========== FORM ELEMENT OVERRIDES ========== */
+input[type="checkbox"], input[type="radio"] { accent-color: #b8992e !important; }
+input[type="checkbox"]:focus, input[type="radio"]:focus { box-shadow: 0 0 8px rgba(184,153,46,0.4) !important; }
+
+/* ========== STATUS TEXT ENHANCEMENT ========== */
+.dc-status-guarded   { color: #7ec850 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; }
+.dc-status-warning   { color: #f0a030 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; }
+.dc-status-siege     { color: #e03030 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; }
+.dc-status-conquered { color: #b8992e !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important; }

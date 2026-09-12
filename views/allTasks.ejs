@@ -77,8 +77,8 @@
       <% if (tasks.length === 0) { %>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5;">
           <div style="font-size:3rem;margin-bottom:0.5rem;">🗺️</div>
-          <div style="font-family:var(--font-cinzel);font-size:0.9rem;color:var(--dc-bronze);letter-spacing:2px;">THE REALM AWAITS ITS FIRST KINGDOM</div>
-          <div style="font-size:0.8rem;color:var(--dc-iron2);margin-top:0.3rem;font-style:italic;">Click "Establish New Kingdom" to begin your conquest</div>
+<div style="font-family:var(--font-cinzel);font-size:0.9rem;color:#7a6018;letter-spacing:2px;">THE REALM AWAITS ITS FIRST KINGDOM</div>
+           <div style="font-size:0.8rem;color:#2d2828;margin-top:0.3rem;font-style:italic;">Click "Establish New Kingdom" to begin your conquest</div>
         </div>
       <% } %>
     </div>
@@ -108,7 +108,7 @@
       <div class="dc-evolution-track">
         <div class="dc-evolution-fill" id="evolution-fill" style="width:<%= total > 0 ? Math.round((conquered/total)*100) : 0 %>%"></div>
       </div>
-      <div style="font-family:var(--font-cinzel);font-size:0.55rem;color:var(--dc-bronze);text-align:center;letter-spacing:1px;">
+      <div style="font-family:var(--font-cinzel);font-size:0.55rem;color:#7a6018;text-align:center;letter-spacing:1px;">
         <%= conquered %> / <%= total %> KINGDOMS CONQUERED
       </div>
     </div>
@@ -177,7 +177,7 @@
 <div class="dc-overlay hidden" id="details-overlay" role="dialog" aria-modal="true" aria-label="Kingdom details">
   <div class="dc-modal" id="details-modal">
     <button class="dc-modal-close" onclick="closeModal('details-overlay')">✕</button>
-    <p style="text-align:center;color:var(--dc-bronze);font-style:italic;">Loading kingdom details...</p>
+    <p style="text-align:center;color:#7a6018;font-style:italic;">Loading kingdom details...</p>
   </div>
 </div>
 
@@ -196,7 +196,7 @@
     <h1 class="dc-evolution-title">ALL KINGDOMS CONQUERED</h1>
     <h2 class="dc-evolution-subtitle">THE DRAGON HAS EVOLVED</h2>
     <div class="dc-evolution-level">🐉 DRAGON LEVEL <span id="evolution-new-level"><%= (user.dragonLevel||1)+1 %></span></div>
-    <p style="font-family:var(--font-cinzel);font-size:0.75rem;color:var(--dc-parchment);letter-spacing:2px;text-align:center;">THE REALM HAS BEEN MASTERED</p>
+    <p style="font-family:var(--font-cinzel);font-size:0.75rem;color:#a0895c;letter-spacing:2px;text-align:center;">THE REALM HAS BEEN MASTERED</p>
     <button class="dc-btn dc-btn-primary" onclick="beginNewConquest()" style="padding:0.8rem 2rem;font-size:0.8rem;">⚔️ BEGIN NEW CONQUEST</button>
   </div>
 </div>
