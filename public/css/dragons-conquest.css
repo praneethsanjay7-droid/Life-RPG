@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    DRAGON'S CONQUEST — THEME CSS
    File: public/css/dragons-conquest.css
    ============================================================ */
@@ -6,26 +6,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
 :root {
-  --dc-bg:          #050404;
-  --dc-bg2:         #0a0808;
-  --dc-parchment:   #d4b87a;
-  --dc-parchment2:  #f0e0b8;
-  --dc-parchment-bg:#2a1f0f;
-  --dc-parchment-card:#1e1509;
-  --dc-gold:        #d4af37;
-  --dc-gold2:       #f0c850;
-  --dc-bronze:      #9b7320;
-  --dc-ember:       #e8640a;
-  --dc-ember2:      #ff8c1a;
-  --dc-red:         #8b1a1a;
-  --dc-red2:        #c0392b;
-  --dc-iron:        #1a1818;
-  --dc-iron2:       #2d2828;
-  --dc-stone:       #4a4040;
-  --dc-green:       #2d5a1b;
-  --dc-green2:      #4a8c2a;
-  --dc-smoke:       rgba(80,70,60,0.5);
-  --dc-shadow:      rgba(0,0,0,0.95);
+  --dc-bg:          #020202;
+  --dc-bg2:         #060505;
+  --dc-parchment:   #a0895c;
+  --dc-parchment2:  #c4aa78;
+  --dc-parchment-bg:#1a1408;
+  --dc-parchment-card:#120e06;
+  --dc-gold:        #b8992e;
+  --dc-gold2:       #c8a83e;
+  --dc-bronze:      #7a6018;
+  --dc-ember:       #c85008;
+  --dc-ember2:      #d86810;
+  --dc-red:         #6b1515;
+  --dc-red2:        #a02818;
+  --dc-iron:        #111010;
+  --dc-iron2:       #1e1c1c;
+  --dc-stone:       #3a3535;
+  --dc-green:       #1f4a14;
+  --dc-green2:      #3a7020;
+  --dc-smoke:       rgba(60,50,40,0.6);
+  --dc-shadow:      rgba(0,0,0,0.98);
   --font-cinzel:    'Cinzel', serif;
   --font-crimson:   'Crimson Text', serif;
   --transition:     0.3s ease;
@@ -36,14 +36,13 @@ html { scroll-behavior: smooth; }
 
 body.dc-body {
   background-color: var(--dc-bg);
-  color: var(--dc-parchment);
+  color: #f4e4b5; /* Brighter parchment for better contrast */
   font-family: var(--font-crimson);
-  font-size: 16px;
+  font-size: 17px; /* Slightly larger text */
+  font-weight: 600; /* Thicker/darker font weight */
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
-  font-weight: 500;
-  line-height: 1.6;
 }
 
 .dc-vignette {
@@ -51,12 +50,17 @@ body.dc-body {
   inset: 0;
   pointer-events: none;
   z-index: 1000;
-  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.95) 100%);
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 85%, rgba(0,0,0,0.85) 100%);
 }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--dc-iron); }
 ::-webkit-scrollbar-thumb { background: var(--dc-bronze); border-radius: 3px; }
+
+/* Make emojis/icons stand out more globally */
+.dc-toast-icon, .dc-conquered-item-check, .dc-details-castle, .dc-completion-icon, .dc-auth-emblem, .dc-chronicle-icon, .dc-guard {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 2px 5px rgba(0,0,0,0.9);
+}
 
 .dc-header {
   position: sticky;
@@ -77,7 +81,7 @@ body.dc-body {
   font-size: 1.4rem;
   font-weight: 900;
   color: var(--dc-gold);
-  text-shadow: 0 0 12px rgba(212,175,55,0.5);
+  text-shadow: 0 0 8px rgba(184,153,46,0.4), 0 1px 4px rgba(0,0,0,0.8);
   letter-spacing: 2px;
   white-space: nowrap;
   text-decoration: none;
@@ -101,8 +105,9 @@ body.dc-body {
   padding: 0.25rem 0.6rem;
   font-family: var(--font-cinzel);
   font-size: 0.72rem;
-  color: var(--dc-parchment);
+  color: var(--dc-parchment2);
   white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
 .dc-stat-badge span { color: var(--dc-gold2); font-weight: 700; }
@@ -128,14 +133,14 @@ body.dc-body {
   width: 100%;
   height: 100%;
   background:
-    radial-gradient(ellipse at 22% 28%, rgba(20,50,10,0.35) 0%, transparent 38%),
-    radial-gradient(ellipse at 68% 18%, rgba(20,50,10,0.28) 0%, transparent 32%),
-    radial-gradient(ellipse at 50% 62%, rgba(20,45,10,0.25) 0%, transparent 36%),
-    radial-gradient(ellipse at 30% 72%, rgba(20,40,10,0.25) 0%, transparent 28%),
-    radial-gradient(ellipse at 80% 72%, rgba(20,40,10,0.2) 0%, transparent 24%),
-    radial-gradient(ellipse at 15% 55%, rgba(40,30,5,0.28) 0%, transparent 20%),
-    radial-gradient(ellipse at 85% 40%, rgba(40,30,5,0.22) 0%, transparent 18%),
-    linear-gradient(145deg, #0d0a04 0%, #1a1208 20%, #141006 40%, #1a1408 60%, #0d0a04 80%, #141006 100%);
+    radial-gradient(ellipse at 22% 28%, rgba(15,35,8,0.3) 0%, transparent 38%),
+    radial-gradient(ellipse at 68% 18%, rgba(15,35,8,0.22) 0%, transparent 32%),
+    radial-gradient(ellipse at 50% 62%, rgba(15,30,8,0.2) 0%, transparent 36%),
+    radial-gradient(ellipse at 30% 72%, rgba(15,28,6,0.2) 0%, transparent 28%),
+    radial-gradient(ellipse at 80% 72%, rgba(15,28,6,0.16) 0%, transparent 24%),
+    radial-gradient(ellipse at 15% 55%, rgba(30,22,4,0.24) 0%, transparent 20%),
+    radial-gradient(ellipse at 85% 40%, rgba(30,22,4,0.18) 0%, transparent 18%),
+    linear-gradient(145deg, #050402 0%, #100c06 20%, #0a0804 40%, #100c06 60%, #050402 80%, #0a0804 100%);
   overflow: hidden;
 }
 
@@ -159,24 +164,24 @@ body.dc-body {
   z-index: 10;
   transition: transform 0.2s ease;
   user-select: none;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.9));
 }
 
 .dc-kingdom:hover { transform: translate(-50%, -50%) scale(1.1); }
 .dc-kingdom:hover .dc-kingdom-castle { filter: drop-shadow(0 0 10px var(--dc-ember)); }
 
 .dc-kingdom-castle {
-  font-size: 2.4rem;
+  font-size: 2.8rem;
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-  transition: filter 0.3s ease;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 15px rgba(255,255,255,0.2));
+  transition: filter 0.3s ease, transform 0.2s;
   animation: kingdomFloat 3s ease-in-out infinite;
 }
 
-.dc-kingdom--low .dc-kingdom-castle    { font-size: 1.8rem; }
-.dc-kingdom--medium .dc-kingdom-castle  { font-size: 2.2rem; }
-.dc-kingdom--high .dc-kingdom-castle   { font-size: 2.5rem; }
-.dc-kingdom--critical .dc-kingdom-castle { font-size: 2.8rem; }
+.dc-kingdom--low .dc-kingdom-castle    { font-size: 2.2rem; }
+.dc-kingdom--medium .dc-kingdom-castle  { font-size: 2.6rem; }
+.dc-kingdom--high .dc-kingdom-castle   { font-size: 3.0rem; }
+.dc-kingdom--critical .dc-kingdom-castle { font-size: 3.4rem; }
 
 .dc-kingdom-name {
   font-family: var(--font-cinzel);
@@ -184,13 +189,13 @@ body.dc-body {
   font-weight: 700;
   color: var(--dc-parchment2);
   text-align: center;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.8);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.98), 0 0 10px rgba(0,0,0,0.9);
   max-width: 90px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.5px;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   padding: 2px 4px;
   border-radius: 2px;
 }
@@ -200,6 +205,19 @@ body.dc-body {
   gap: 1px;
   font-size: 0.7rem;
   animation: guardBob 2s ease-in-out infinite;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+}
+
+.dc-kingdom-time {
+  font-family: var(--font-crimson);
+  font-size: 0.5rem;
+  color: var(--dc-parchment2);
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+  letter-spacing: 0.3px;
 }
 
 .dc-kingdom-status {
@@ -210,6 +228,7 @@ body.dc-body {
   padding: 1px 5px;
   border-radius: 2px;
   text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
 .dc-status-guarded   { color: #7ec850; background: rgba(45,90,27,0.6); }
@@ -286,6 +305,7 @@ body.dc-body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
 
 .dc-conquered-list {
@@ -314,7 +334,7 @@ body.dc-body {
 .dc-conquered-item-name {
   font-family: var(--font-crimson);
   font-size: 0.82rem;
-  color: #a09070;
+  color: #8a7a60;
   text-decoration: line-through;
   flex: 1;
   white-space: nowrap;
@@ -335,6 +355,7 @@ body.dc-body {
 .dc-evolution-panel {
   padding: 0.8rem;
   border-top: 1px solid var(--dc-iron2);
+  background: rgba(0,0,0,0.4);
 }
 
 .dc-evolution-label {
@@ -344,6 +365,7 @@ body.dc-body {
   letter-spacing: 1px;
   margin-bottom: 0.4rem;
   text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
 .dc-evolution-track {
@@ -353,6 +375,7 @@ body.dc-body {
   height: 8px;
   overflow: hidden;
   margin-bottom: 0.6rem;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .dc-evolution-fill {
@@ -366,7 +389,7 @@ body.dc-body {
 .dc-establish-btn {
   margin: 0.5rem;
   padding: 0.65rem;
-  background: linear-gradient(135deg, #5a1f0a 0%, #8b3010 50%, #5a1f0a 100%);
+  background: linear-gradient(135deg, #3a1500 0%, #5a2500 50%, #3a1500 100%);
   border: 1px solid var(--dc-ember);
   border-radius: 4px;
   color: var(--dc-parchment2);
@@ -377,19 +400,20 @@ body.dc-body {
   cursor: pointer;
   text-align: center;
   transition: all 0.3s ease;
-  box-shadow: 0 0 8px rgba(232,100,10,0.2);
+  box-shadow: 0 0 8px rgba(232,100,10,0.3);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .dc-establish-btn:hover {
-  background: linear-gradient(135deg, #7a2f0f 0%, #b04010 50%, #7a2f0f 100%);
-  box-shadow: 0 0 18px rgba(232,100,10,0.5);
+  background: linear-gradient(135deg, #5a2000 0%, #7a3500 50%, #5a2000 100%);
+  box-shadow: 0 0 22px rgba(232,100,10,0.5);
   transform: translateY(-1px);
 }
 
 .dc-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.9);
   z-index: 800;
   display: flex;
   align-items: center;
@@ -402,8 +426,8 @@ body.dc-body {
 
 .dc-modal {
   background:
-    radial-gradient(ellipse at 30% 20%, rgba(40,25,5,0.7) 0%, transparent 50%),
-    linear-gradient(160deg, #1a1005 0%, #120c03 40%, #1a1205 70%, #120c03 100%);
+    radial-gradient(ellipse at 30% 20%, rgba(30,20,5,0.8) 0%, transparent 50%),
+    linear-gradient(160deg, #120d04 0%, #0a0703 40%, #120d04 70%, #0a0703 100%);
   border: 2px solid var(--dc-bronze);
   border-radius: 6px;
   padding: 1.8rem 2rem;
@@ -412,7 +436,7 @@ body.dc-body {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(139,105,20,0.2), inset 0 0 40px rgba(0,0,0,0.7);
+  box-shadow: 0 0 60px rgba(0,0,0,0.98), 0 0 30px rgba(139,105,20,0.2), inset 0 0 40px rgba(0,0,0,0.9);
   animation: modalSlide 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
 
@@ -434,7 +458,7 @@ body.dc-body {
   text-align: center;
   letter-spacing: 2px;
   margin-bottom: 0.3rem;
-  text-shadow: 0 0 8px rgba(212,175,55,0.3);
+  text-shadow: 0 0 6px rgba(184,153,46,0.3), 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .dc-modal-divider {
@@ -472,15 +496,16 @@ body.dc-body {
   font-family: var(--font-cinzel);
   font-size: 0.65rem;
   font-weight: 600;
-  color: var(--dc-parchment);
+  color: var(--dc-parchment2);
   letter-spacing: 1px;
   margin-bottom: 0.3rem;
   text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
 .dc-input, .dc-textarea, .dc-select {
   width: 100%;
-  background: rgba(10,8,8,0.8);
+  background: rgba(5,4,4,0.9);
   border: 1px solid var(--dc-iron2);
   border-radius: 3px;
   color: var(--dc-parchment2);
@@ -489,6 +514,7 @@ body.dc-body {
   padding: 0.5rem 0.7rem;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .dc-input:focus, .dc-textarea:focus, .dc-select:focus {
@@ -634,7 +660,7 @@ body.dc-body {
 .dc-toast-msg { font-family: var(--font-crimson); font-size: 0.9rem; color: var(--dc-parchment); }
 
 .dc-details-castle { font-size: 3.5rem; text-align: center; margin-bottom: 0.5rem; filter: drop-shadow(0 0 12px rgba(232,100,10,0.4)); }
-.dc-details-name { font-family: var(--font-cinzel); font-size: 1.2rem; font-weight: 700; color: var(--dc-gold); text-align: center; letter-spacing: 2px; margin-bottom: 0.5rem; }
+.dc-details-name { font-family: var(--font-cinzel); font-size: 1.2rem; font-weight: 700; color: var(--dc-gold); text-align: center; letter-spacing: 2px; margin-bottom: 0.5rem; text-shadow: 0 0 6px rgba(184,153,46,0.3); }
 .dc-details-status { display: flex; justify-content: center; margin-bottom: 1rem; }
 
 .dc-details-grid {
@@ -646,9 +672,9 @@ body.dc-body {
 
 .dc-details-field { background: rgba(0,0,0,0.4); border: 1px solid var(--dc-iron2); border-radius: 3px; padding: 0.5rem 0.7rem; }
 .dc-details-field-label { font-family: var(--font-cinzel); font-size: 0.55rem; color: var(--dc-bronze); letter-spacing: 1px; margin-bottom: 0.2rem; }
-.dc-details-field-value { font-family: var(--font-crimson); font-size: 0.9rem; color: var(--dc-parchment2); }
+.dc-details-field-value { font-family: var(--font-crimson); font-size: 0.9rem; color: var(--dc-parchment2); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
-.dc-details-desc { background: rgba(0,0,0,0.3); border: 1px solid var(--dc-iron2); border-radius: 3px; padding: 0.6rem; margin-bottom: 1rem; font-style: italic; font-size: 0.95rem; color: var(--dc-parchment); min-height: 40px; }
+.dc-details-desc { background: rgba(0,0,0,0.5); border: 1px solid var(--dc-iron2); border-radius: 3px; padding: 0.6rem; margin-bottom: 1rem; font-style: italic; font-size: 0.95rem; color: var(--dc-parchment); min-height: 40px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 .dc-details-guards { text-align: center; font-size: 1.2rem; letter-spacing: 4px; margin-bottom: 1rem; }
 .dc-details-actions { display: flex; gap: 0.5rem; flex-direction: column; }
 
@@ -725,12 +751,12 @@ body.dc-body {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1500;
-  background: linear-gradient(135deg, #1a1208 0%, #2a1c08 50%, #1a1208 100%);
+  background: linear-gradient(135deg, #0e0a04 0%, #1a1408 50%, #0e0a04 100%);
   border: 2px solid var(--dc-gold);
   border-radius: 8px;
   padding: 2rem 2.5rem;
   text-align: center;
-  box-shadow: 0 0 50px rgba(212,175,55,0.4), 0 0 100px rgba(0,0,0,0.9);
+  box-shadow: 0 0 60px rgba(212,175,55,0.4), 0 0 100px rgba(0,0,0,0.98);
   animation: completionCard 0.5s cubic-bezier(0.34,1.56,0.64,1);
   display: none;
 }
@@ -767,16 +793,16 @@ body.dc-body {
 
 .dc-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
 
-.dc-stats-card { background: linear-gradient(145deg, #1a1208 0%, #231708 100%); border: 1px solid var(--dc-iron2); border-radius: 5px; padding: 1rem; text-align: center; transition: border-color 0.2s; }
+.dc-stats-card { background: linear-gradient(145deg, #0e0c06 0%, #151008 100%); border: 1px solid var(--dc-iron2); border-radius: 5px; padding: 1rem; text-align: center; transition: border-color 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 .dc-stats-card:hover { border-color: var(--dc-bronze); }
 .dc-stats-card-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
 .dc-stats-card-value { font-family: var(--font-cinzel); font-size: 1.8rem; font-weight: 900; color: var(--dc-gold); }
 .dc-stats-card-label { font-family: var(--font-cinzel); font-size: 0.58rem; color: var(--dc-bronze); letter-spacing: 1.5px; }
 
-.dc-chart-container { background: linear-gradient(145deg, #110e08 0%, #1a1408 100%); border: 1px solid var(--dc-iron2); border-radius: 5px; padding: 1.2rem; margin-bottom: 1.5rem; }
+.dc-chart-container { background: linear-gradient(145deg, #080604 0%, #100c06 100%); border: 1px solid var(--dc-iron2); border-radius: 5px; padding: 1.2rem; margin-bottom: 1.5rem; }
 .dc-chart-title { font-family: var(--font-cinzel); font-size: 0.75rem; color: var(--dc-bronze); letter-spacing: 2px; text-align: center; margin-bottom: 1rem; }
 
-.dc-conquered-chronicle { background: linear-gradient(145deg, #110e08 0%, #1a1408 100%); border: 1px solid var(--dc-iron2); border-radius: 5px; padding: 1rem; }
+.dc-conquered-chronicle { background: linear-gradient(145deg, #080604 0%, #100c06 100%); border: 1px solid var(--dc-iron2); border-radius: 5px; padding: 1rem; }
 .dc-chronicle-title { font-family: var(--font-cinzel); font-size: 0.75rem; color: var(--dc-gold); letter-spacing: 2px; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--dc-iron2); }
 .dc-chronicle-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(60,50,40,0.4); }
 .dc-chronicle-item:last-child { border-bottom: none; }
@@ -785,22 +811,22 @@ body.dc-body {
 .dc-chronicle-date { font-size: 0.72rem; color: var(--dc-iron2); font-style: italic; }
 .dc-chronicle-check { color: var(--dc-gold); font-size: 0.8rem; }
 
-.dc-auth-body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(180deg, #080507 0%, #0d0b0b 50%, #090709 100%); }
+.dc-auth-body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(180deg, #010101 0%, #050404 50%, #020202 100%); }
 
 .dc-auth-card {
-  background: linear-gradient(160deg, #211608 0%, #180f04 50%, #1e1407 100%);
+  background: linear-gradient(160deg, #1a1408 0%, #110d04 50%, #151006 100%);
   border: 1px solid var(--dc-bronze);
   border-radius: 6px;
   padding: 2.5rem 2.2rem;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 0 60px rgba(0,0,0,0.9), 0 0 20px rgba(100,75,15,0.12), inset 0 0 40px rgba(0,0,0,0.4);
+  box-shadow: 0 0 80px rgba(0,0,0,0.98), 0 0 30px rgba(100,75,15,0.12), inset 0 0 50px rgba(0,0,0,0.6);
   position: relative;
 }
 
 .dc-auth-emblem { text-align: center; font-size: 2.5rem; margin-bottom: 0.5rem; }
 
-.dc-auth-title { font-family: var(--font-cinzel); font-size: 1.2rem; font-weight: 700; color: var(--dc-gold); text-align: center; letter-spacing: 3px; margin-bottom: 0.2rem; text-shadow: 0 0 8px rgba(212,175,55,0.25); }
+.dc-auth-title { font-family: var(--font-cinzel); font-size: 1.2rem; font-weight: 700; color: var(--dc-gold); text-align: center; letter-spacing: 3px; margin-bottom: 0.2rem; text-shadow: 0 0 6px rgba(184,153,46,0.25), 0 1px 4px rgba(0,0,0,0.8); }
 
 .dc-auth-subtitle { text-align: center; color: var(--dc-bronze); font-style: italic; font-size: 0.82rem; margin-bottom: 1.5rem; opacity: 0.8; }
 
