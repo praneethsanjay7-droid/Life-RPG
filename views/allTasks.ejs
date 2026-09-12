@@ -7,8 +7,13 @@
 </head>
 <body>
     
-    <h1>All the tasks</h1>
-<div>
+<h1>All the tasks</h1>
+    <% if(user){%>
+        <div>Logged in as: <%=user.username%> | <a href="/logout">Logout</a></div>
+    <% }else{ %>
+        <div><a href="/login">Login</a></div>
+    <% }%>
+    <div>
         Total tasks: <%=total%> | Completed: <%=completed%> | Remaining: <%=remaining%>
     </div>
     <form action="/newTask" method="get">
