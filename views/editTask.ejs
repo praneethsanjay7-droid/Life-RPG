@@ -22,6 +22,16 @@
         <textarea class="dc-textarea" id="description" name="description" rows="3"><%= taskDetails.description || '' %></textarea>
       </div>
       <div class="dc-form-group">
+        <label class="dc-label" for="endTime">⏰ End Time:</label>
+        <input class="dc-input" type="datetime-local" id="endTime" name="endTime"
+          value="<%= taskDetails.endTime ? taskDetails.endTime.toISOString().slice(0,16) : '' %>" required>
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="startTime">⏰ Start Time:</label>
+        <input class="dc-input" type="datetime-local" id="startTime" name="startTime"
+          value="<%= taskDetails.startTime ? taskDetails.startTime.toISOString().slice(0,16) : '' %>" required>
+      </div>
+      <div class="dc-form-group">
         <label class="dc-label" for="deadline">⏳ Siege Deadline</label>
         <input class="dc-input" type="date" id="deadline" name="deadline"
           value="<%= taskDetails.deadline ? taskDetails.deadline.toISOString().split('T')[0] : '' %>">

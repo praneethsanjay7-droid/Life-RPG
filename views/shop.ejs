@@ -1,0 +1,78 @@
+<%- layout('layouts/boilerplate') %>
+
+<header class="dc-header">
+  <a href="/allTasks" class="dc-header-brand">🐉 DRAGON'S CONQUEST</a>
+  <div class="dc-header-stats">
+    <div class="dc-stat-badge">🪙 Coins: <span><%= user.coins || 0 %></span></div>
+    <div class="dc-stat-badge">🐉 Dragon Level: <span><%= user.dragonLevel || 1 %></span></div>
+  </div>
+  <nav class="dc-header-nav">
+    <a href="/allTasks" class="dc-btn dc-btn-ghost">← Back to Realm</a>
+  </nav>
+</header>
+
+<div class="dc-stats-layout">
+  <h1 class="dc-stats-title">🏪 DRAGON'S SHOP</h1>
+  <p class="dc-stats-subtitle">Spend your conquest coins on powerful items</p>
+
+  <div class="dc-stats-grid">
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">🪙</div>
+      <div class="dc-stats-card-value"><%= user.coins || 0 %></div>
+      <div class="dc-stats-card-label">COINS</div>
+    </div>
+  </div>
+
+  <div class="dc-stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+    <% items.forEach(item => { %>
+      <div class="dc-shop-item">
+        <div class="dc-shop-item-icon"><%= item.icon %></div>
+        <div class="dc-shop-item-name"><%= item.name %></div>
+        <div class="dc-shop-item-price">🪙 <%= item.price %></div>
+        <form action="/shop/buy" method="post" style="display:inline;">
+          <input type="hidden" name="itemId" value="<%= item.id %>">
+          <button type="submit" class="dc-btn dc-btn-primary" <%= (user.coins || 0) < item.price ? 'disabled' : '' %>>
+            <%= (user.coins || 0) < item.price ? 'Too Poor' : 'BUY' %>
+          </button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Inventory -->
+  <div class="dc-conquered-chronicle">
+    <div class="dc-chronicle-title">🎒 INVENTORY</div>
+    <% if (user.inventory && user.inventory.length > 0) { %>
+      <% user.inventory.forEach(inv => { %>
+        <% const item = items.find(i => i.id === inv.itemId); %>
+        <% if (item) { %>
+          <div class="dc-chronicle-item">
+            <span class="dc-chronicle-icon"><%= item.icon %></span>
+            <span class="dc-chronicle-name"><%= item.name %> x<%= inv.quantity %></span>
+          </div>
+        <% } %>
+      <% }) %>
+    <% } else { %>
+      <div style="text-align:center;padding:1.5rem;color:var(--dc-iron2);font-style:italic;">
+        Your inventory is empty. Visit the shop!
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Badges -->
+  <div class="dc-conquered-chronicle">
+    <div class="dc-chronicle-title">🏅 BADGES</div>
+    <% if (user.badges && user.badges.length > 0) { %>
+      <% user.badges.forEach(badge => { %>
+        <div class="dc-chronicle-item">
+          <span class="dc-chronicle-icon">🏅</span>
+          <span class="dc-chronicle-name"><%= badge.name %></span>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div style="text-align:center;padding:1.5rem;color:var(--dc-iron2);font-style:italic;">
+        No badges yet. Keep conquering!
+      </div>
+    <% } %>
+  </div>
+</div>

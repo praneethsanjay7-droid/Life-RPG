@@ -49,6 +49,23 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  next();
+});
+
+function updateStreak(user) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate).setHours(0,0,0,0) : null;
+  if (lastActive === yesterday.getTime()) {
+    user.conquestStreak = (user.conquestStreak || 0) + 1;
+  } else if (lastActive !== today.getTime()) {
+    user.conquestStreak = 1;
+  }
+  user.lastActiveDate = today;
+}
+
 // Make flash + user available in all templates
 app.use((req, res, next) => {
   res.locals.messages     = { success: req.flash("success"), error: req.flash("error") };
@@ -105,6 +122,8 @@ app.get("/", (req, res) => res.redirect("/allTasks"));
 
 // --- All Tasks (Kingdom Map Dashboard)
 app.get("/allTasks", isAuthenticated, async (req, res) => {
+  updateStreak(req.user);
+  await req.user.save();
   const cycle = req.user.conquestStreak + 1;
   const tasks = await Task.find({ user: req.user._id, conquestCycle: cycle });
   const total     = tasks.length;
@@ -184,7 +203,7 @@ app.get("/logout", (req, res) => {
 // --- Create Task (Establish Kingdom)
 app.post("/newTask", isAuthenticated, async (req, res) => {
   try {
-    const { title, description, priority, category, deadline } = req.body;
+    const { title, description, priority, category, deadline, startTime, endTime } = req.body;
     const cycle = req.user.conquestStreak + 1;
 
     // Get existing positions for this user+cycle
@@ -196,6 +215,8 @@ app.post("/newTask", isAuthenticated, async (req, res) => {
       title, description, priority: priority || "medium",
       category: category || "other",
       deadline: deadline ? new Date(deadline) : undefined,
+      startTime: startTime ? new Date(startTime) : undefined,
+      endTime: endTime ? new Date(endTime) : undefined,
       mapPosition, conquestCycle: cycle,
       user: req.user._id
     });
@@ -220,10 +241,29 @@ app.patch("/tasks/:id/complete", isAuthenticated, async (req, res) => {
 
     // Update user stats
     const user = req.user;
+    updateStreak(user);
+
+    // Category → stat mapping
+    const categoryStats = { study: 'intellect', work: 'charisma', personal: 'strength', other: 'agility' };
+    const statField = categoryStats[task.category] || 'agility';
+    user[statField] = (user[statField] || 0) + 1;
+
+    // Award XP and coins
+    const xpEarned = task.priority === 'critical' ? 150 : task.priority === 'high' ? 100 : task.priority === 'medium' ? 50 : 25;
+    const coinsEarned = task.priority === 'critical' ? 30 : task.priority === 'high' ? 20 : task.priority === 'medium' ? 10 : 5;
+    user.addXP(xpEarned);
+    user.coins = (user.coins || 0) + coinsEarned;
     user.totalKingdomsConquered = (user.totalKingdomsConquered || 0) + 1;
-    await User.findByIdAndUpdate(user._id, {
-      totalKingdomsConquered: user.totalKingdomsConquered
-    });
+
+    // Check if any badges to unlock
+    if (user.totalKingdomsConquered === 10 && !user.badges.find(b => b.name === 'Dragon Slayer')) {
+      user.badges.push({ name: 'Dragon Slayer', unlockedAt: new Date() });
+    }
+    if (user.totalKingdomsConquered === 50 && !user.badges.find(b => b.name === 'Realm Lord')) {
+      user.badges.push({ name: 'Realm Lord', unlockedAt: new Date() });
+    }
+
+    await user.save();
 
     // Count for current cycle
     const cycle = user.conquestStreak + 1;
@@ -233,8 +273,6 @@ app.patch("/tasks/:id/complete", isAuthenticated, async (req, res) => {
     const total     = allTasks.length;
 
     let newLevel = user.dragonLevel;
-
-    // Check if all conquered → evolution
     if (remaining === 0 && total > 0) {
       newLevel = user.dragonLevel + 1;
       await User.findByIdAndUpdate(user._id, {
@@ -243,7 +281,7 @@ app.patch("/tasks/:id/complete", isAuthenticated, async (req, res) => {
       });
     }
 
-    res.json({ success: true, conquered, remaining, total, newLevel });
+    res.json({ success: true, conquered, remaining, total, newLevel, xpEarned, coinsEarned, stats: { intellect: user.intellect, strength: user.strength, agility: user.agility, charisma: user.charisma } });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Server error." });
@@ -275,7 +313,7 @@ app.get("/editTask/:id", isAuthenticated, async (req, res) => {
 
 app.post("/editTask/:id", isAuthenticated, async (req, res) => {
   try {
-    const { title, description, priority, category, deadline, completed } = req.body;
+    const { title, description, priority, category, deadline, completed, startTime, endTime } = req.body;
     await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.user._id },
       {
@@ -283,6 +321,8 @@ app.post("/editTask/:id", isAuthenticated, async (req, res) => {
         priority: priority || "medium",
         category: category || "other",
         deadline: deadline ? new Date(deadline) : null,
+        startTime: startTime ? new Date(startTime) : undefined,
+        endTime: endTime ? new Date(endTime) : undefined,
         completed: completed === "true"
       },
       { new: true, runValidators: true }
@@ -310,12 +350,12 @@ app.post("/deleteTask/:id", isAuthenticated, async (req, res) => {
 
 // --- Stats
 app.get("/stats", isAuthenticated, async (req, res) => {
-  const today    = new Date(); today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
   const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
 
-  const allTasks    = await Task.find({ user: req.user._id });
-  const cycle       = req.user.conquestStreak + 1;
-  const cycleTasks  = allTasks.filter(t => t.conquestCycle === cycle);
+  const allTasks = await Task.find({ user: req.user._id });
+  const cycle = req.user.conquestStreak + 1;
+  const cycleTasks = allTasks.filter(t => t.conquestCycle === cycle);
 
   const dailyCompleted = await Task.countDocuments({
     user: req.user._id, completed: true,
@@ -327,14 +367,97 @@ app.get("/stats", isAuthenticated, async (req, res) => {
     .filter(t => t.completed)
     .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
 
+  // --- Daily chart data (last 7 days)
+  const dailyChartLabels = [];
+  const dailyChartCompleted = [];
+  const dailyChartRemaining = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const dayStart = new Date(d); dayStart.setHours(0,0,0,0);
+    const dayEnd = new Date(dayStart); dayEnd.setDate(dayStart.getDate() + 1);
+    const label = d.toLocaleDateString('en-US', {weekday:'short', month:'numeric', day:'numeric'});
+    const c = await Task.countDocuments({user: req.user._id, completed: true, completedAt: {$gte: dayStart, $lt: dayEnd}});
+    const t = await Task.countDocuments({user: req.user._id, createdAt: {$gte: dayStart, $lt: dayEnd}});
+    dailyChartLabels.push(label);
+    dailyChartCompleted.push(c);
+    dailyChartRemaining.push(t - c);
+  }
+
+  // --- Weekly chart data (last 4 weeks)
+  const weeklyChartLabels = [];
+  const weeklyChartCompleted = [];
+  const weeklyChartRemaining = [];
+  for (let i = 3; i >= 0; i--) {
+    const ws = new Date(today); ws.setDate(today.getDate() - (i * 7) - today.getDay());
+    const we = new Date(ws); we.setDate(ws.getDate() + 7);
+    const label = `Week ${4 - i} (${ws.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${we.toLocaleDateString('en-US', {month:'short', day:'numeric'})})`;
+    const c = await Task.countDocuments({user: req.user._id, completed: true, completedAt: {$gte: ws, $lt: we}});
+    const t = await Task.countDocuments({user: req.user._id, createdAt: {$gte: ws, $lt: we}});
+    weeklyChartLabels.push(label);
+    weeklyChartCompleted.push(c);
+    weeklyChartRemaining.push(t - c);
+  }
+
+  // --- Monthly chart data (last 3 months)
+  const monthlyChartLabels = [];
+  const monthlyChartCompleted = [];
+  const monthlyChartRemaining = [];
+  for (let i = 2; i >= 0; i--) {
+    const ms = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const me = new Date(today.getFullYear(), today.getMonth() - i + 1, 1);
+    const label = ms.toLocaleDateString('en-US', {month:'short', year:'numeric'});
+    const c = await Task.countDocuments({user: req.user._id, completed: true, completedAt: {$gte: ms, $lt: me}});
+    const t = await Task.countDocuments({user: req.user._id, createdAt: {$gte: ms, $lt: me}});
+    monthlyChartLabels.push(label);
+    monthlyChartCompleted.push(c);
+    monthlyChartRemaining.push(t - c);
+  }
+
   res.render("stats.ejs", {
     dailyCompleted, dailyRemaining,
     totalConquered: allTasks.filter(t => t.completed).length,
-    totalKingdoms:  allTasks.length,
+    totalKingdoms: allTasks.length,
     conqueredTasks,
     user: req.user,
+    dailyChartLabels, dailyChartCompleted, dailyChartRemaining,
+    weeklyChartLabels, weeklyChartCompleted, weeklyChartRemaining,
+    monthlyChartLabels, monthlyChartCompleted, monthlyChartRemaining,
     layout: "layouts/boilerplate"
   });
+});
+
+// --- Shop
+const SHOP_ITEMS = [
+  { id: "potion", name: "Health Potion", price: 10, icon: "💊" },
+  { id: "sword", name: "Iron Sword", price: 50, icon: "⚔️" },
+  { id: "shield", name: "Dragon Shield", price: 75, icon: "🛡️" },
+  { id: "crown", name: "Golden Crown", price: 200, icon: "👑" },
+  { id: "wings", name: "Dragon Wings", price: 300, icon: "🦋" }
+];
+
+app.get("/shop", isAuthenticated, async (req, res) => {
+  res.render("shop.ejs", { items: SHOP_ITEMS, user: req.user, layout: "layouts/boilerplate" });
+});
+
+app.post("/shop/buy", isAuthenticated, async (req, res) => {
+  try {
+    const { itemId } = req.body;
+    const item = SHOP_ITEMS.find(i => i.id === itemId);
+    if (!item) return res.redirect("/shop");
+    if ((req.user.coins || 0) < item.price) return res.redirect("/shop");
+
+    req.user.coins -= item.price;
+    const existing = req.user.inventory.find(i => i.itemId === itemId);
+    if (existing) { existing.quantity += 1; }
+    else { req.user.inventory.push({ itemId, quantity: 1 }); }
+    await req.user.save();
+
+    req.flash("success", `${item.icon} ${item.name} purchased!`);
+    res.redirect("/shop");
+  } catch (err) {
+    console.log(err);
+    res.redirect("/shop");
+  }
 });
 
 app.listen(port, () => console.log(`Dragon's Conquest listening on port ${port}`));

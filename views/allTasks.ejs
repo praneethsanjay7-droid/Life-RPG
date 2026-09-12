@@ -38,6 +38,9 @@
           const guardCount = { low:1, medium:2, high:3, critical:4 }[task.priority] || 2;
           const deadlineISO = task.deadline ? task.deadline.toISOString() : '';
         %>
+        <% const startTimeStr = task.startTime ? task.startTime.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : ''; %>
+        <% const endTimeStr = task.endTime ? task.endTime.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}) : ''; %>
+        <% const dayStr = task.startTime ? task.startTime.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}) : ''; %>
         <div class="dc-kingdom dc-kingdom--<%= priorityClass %> <%= conqueredClass %> <%= overdueClass %>"
              style="left:<%= task.mapPosition ? task.mapPosition.x : 50 %>%;top:<%= task.mapPosition ? task.mapPosition.y : 50 %>%;"
              data-task-id="<%= task._id %>"
@@ -46,10 +49,13 @@
              data-task-deadline="<%= deadlineISO %>"
              data-task-priority="<%= task.priority || 'medium' %>"
              data-task-category="<%= task.category || 'other' %>"
-             data-task-completed="<%= task.completed %>">
+             data-task-completed="<%= task.completed %>"
+             role="region"
+             aria-label="Kingdom: <%= task.title %>">
           <div class="dc-kingdom-flame">🔥</div>
           <div class="dc-kingdom-castle"><%= castleEmoji %></div>
           <div class="dc-kingdom-name"><%= task.title.substring(0,14).toUpperCase() %></div>
+          <div class="dc-kingdom-time"><%= dayStr %> <%= startTimeStr %> - <%= endTimeStr %></div>
           <% if (!task.completed) { %>
             <div class="dc-kingdom-guards">
               <% for(let i=0; i<guardCount; i++) { %><span class="dc-guard">🛡️</span><% } %>
@@ -64,8 +70,8 @@
           <% } else { %>
             <div class="dc-kingdom-status dc-status-conquered">CONQUERED ✓</div>
           <% } %>
-        </div>
-      <% } %>
+</div>
+       <% } %>
 
       <!-- Empty state -->
       <% if (tasks.length === 0) { %>
@@ -116,42 +122,50 @@
 </div>
 
 <!-- ========== ESTABLISH KINGDOM MODAL ========== -->
-<div class="dc-overlay hidden" id="establish-overlay">
+<div class="dc-overlay hidden" id="establish-overlay" role="dialog" aria-modal="true" aria-label="Establish new kingdom">
   <div class="dc-modal">
     <button class="dc-modal-close" onclick="closeModal('establish-overlay')">✕</button>
     <h2 class="dc-modal-title">⚔️ ESTABLISH NEW KINGDOM</h2>
     <div class="dc-modal-divider">— Inscribe your royal decree —</div>
-    <form action="/newTask" method="post">
+      <form action="/newTask" method="post">
       <div class="dc-form-group">
         <label class="dc-label" for="title">🏰 Kingdom Name</label>
-        <input class="dc-input" type="text" id="title" name="title" placeholder="Name your kingdom" required maxlength="50">
+        <input class="dc-input" type="text" id="title" name="title" placeholder="Name your kingdom" required maxlength="50" aria-label="Kingdom name">
       </div>
       <div class="dc-form-group">
         <label class="dc-label" for="description">📜 Royal Decree</label>
-        <textarea class="dc-textarea" id="description" name="description" placeholder="Describe the conquest objective..." rows="2"></textarea>
+        <textarea class="dc-textarea" id="description" name="description" placeholder="Describe the conquest objective..." rows="2" aria-label="Royal decree"></textarea>
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="startTime">⏰ Start Time:</label>
+        <input class="dc-input" type="datetime-local" id="startTime" name="startTime" required aria-label="Start time">
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="endTime">⏰ End Time:</label>
+        <input class="dc-input" type="datetime-local" id="endTime" name="endTime" required aria-label="End time">
       </div>
       <div class="dc-form-group">
         <label class="dc-label" for="deadline">⏳ Siege Deadline</label>
-        <input class="dc-input" type="date" id="deadline" name="deadline">
+        <input class="dc-input" type="date" id="deadline" name="deadline" aria-label="Siege deadline">
       </div>
       <div class="dc-form-group">
         <label class="dc-label">⚔️ Kingdom Strength (Priority)</label>
         <input type="hidden" name="priority" id="priority-val" value="medium">
-        <div class="dc-priority-group">
-          <button type="button" class="dc-toggle-btn" data-value="low">🟢 LOW</button>
-          <button type="button" class="dc-toggle-btn active-medium" data-value="medium">🟡 MEDIUM</button>
-          <button type="button" class="dc-toggle-btn" data-value="high">🔴 HIGH</button>
-          <button type="button" class="dc-toggle-btn" data-value="critical">💀 CRITICAL</button>
+        <div class="dc-priority-group" role="group" aria-label="Kingdom strength">
+          <button type="button" class="dc-toggle-btn" data-value="low" aria-label="Low strength">🟢 LOW</button>
+          <button type="button" class="dc-toggle-btn active-medium" data-value="medium" aria-label="Medium strength">🟡 MEDIUM</button>
+          <button type="button" class="dc-toggle-btn" data-value="high" aria-label="High strength">🔴 HIGH</button>
+          <button type="button" class="dc-toggle-btn" data-value="critical" aria-label="Critical strength">💀 CRITICAL</button>
         </div>
       </div>
       <div class="dc-form-group">
         <label class="dc-label">📚 Category</label>
         <input type="hidden" name="category" id="category-val" value="other">
-        <div class="dc-category-group">
-          <button type="button" class="dc-toggle-btn" data-value="study">📚 STUDY</button>
-          <button type="button" class="dc-toggle-btn" data-value="work">⚒️ WORK</button>
-          <button type="button" class="dc-toggle-btn active-other" data-value="personal">🧙 PERSONAL</button>
-          <button type="button" class="dc-toggle-btn" data-value="other">🌐 OTHER</button>
+<div class="dc-category-group" role="group" aria-label="Task category">
+          <button type="button" class="dc-toggle-btn" data-value="study" aria-label="Study category">📚 STUDY</button>
+          <button type="button" class="dc-toggle-btn" data-value="work" aria-label="Work category">⚒️ WORK</button>
+          <button type="button" class="dc-toggle-btn" data-value="personal" aria-label="Personal category">🧙 PERSONAL</button>
+          <button type="button" class="dc-toggle-btn" data-value="other" aria-label="Other category">🌐 OTHER</button>
         </div>
       </div>
       <button type="submit" class="dc-btn dc-btn-primary dc-btn-full">🏰 ESTABLISH KINGDOM</button>
@@ -160,7 +174,7 @@
 </div>
 
 <!-- ========== KINGDOM DETAILS MODAL ========== -->
-<div class="dc-overlay hidden" id="details-overlay">
+<div class="dc-overlay hidden" id="details-overlay" role="dialog" aria-modal="true" aria-label="Kingdom details">
   <div class="dc-modal" id="details-modal">
     <button class="dc-modal-close" onclick="closeModal('details-overlay')">✕</button>
     <p style="text-align:center;color:var(--dc-bronze);font-style:italic;">Loading kingdom details...</p>
@@ -176,7 +190,7 @@
 </div>
 
 <!-- ========== EVOLUTION OVERLAY ========== -->
-<div class="dc-evolution-overlay hidden" id="evolution-overlay">
+<div class="dc-overlay hidden" id="evolution-overlay" role="dialog" aria-modal="true" aria-label="Evolution progress">
   <div class="dc-evolution-content">
     <div class="dc-evolution-dragon-char">🐲</div>
     <h1 class="dc-evolution-title">ALL KINGDOMS CONQUERED</h1>
@@ -201,6 +215,25 @@ document.querySelectorAll('.dc-category-group .dc-toggle-btn').forEach(btn => {
     document.querySelectorAll('.dc-category-group .dc-toggle-btn').forEach(b => b.className = 'dc-toggle-btn');
     btn.classList.add('active-' + btn.dataset.value);
     document.getElementById('category-val').value = btn.dataset.value;
+  });
+});
+
+// Keyboard support: Escape closes modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.dc-overlay:not(.hidden)').forEach(overlay => {
+      overlay.classList.add('hidden');
+    });
+  }
+});
+
+// Keyboard support: Enter/Space on toggle buttons
+document.querySelectorAll('.dc-toggle-btn').forEach(btn => {
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      btn.click();
+    }
   });
 });
 </script>

@@ -18,8 +18,8 @@
   <!-- Period Tabs -->
   <div class="dc-period-tabs">
     <button class="dc-period-tab active" id="tab-daily" onclick="switchTab('daily')">DAILY</button>
-    <button class="dc-period-tab coming-soon" title="Coming Soon" disabled>WEEKLY</button>
-    <button class="dc-period-tab coming-soon" title="Coming Soon" disabled>MONTHLY</button>
+    <button class="dc-period-tab" id="tab-weekly" onclick="switchTab('weekly')">WEEKLY</button>
+    <button class="dc-period-tab" id="tab-monthly" onclick="switchTab('monthly')">MONTHLY</button>
   </div>
 
   <!-- Stats Cards -->
@@ -27,7 +27,7 @@
     <div class="dc-stats-card">
       <div class="dc-stats-card-icon">🔥</div>
       <div class="dc-stats-card-value" id="stat-conquered"><%= dailyCompleted %></div>
-      <div class="dc-stats-card-label">TODAY CONQUERED</div>
+      <div class="dc-stats-card-label">CONQUERED</div>
     </div>
     <div class="dc-stats-card">
       <div class="dc-stats-card-icon">🏰</div>
@@ -44,11 +44,45 @@
       <div class="dc-stats-card-value"><%= user.dragonLevel || 1 %></div>
       <div class="dc-stats-card-label">DRAGON LEVEL</div>
     </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">⭐</div>
+      <div class="dc-stats-card-value"><%= user.currentXP || 0 %></div>
+      <div class="dc-stats-card-label">CURRENT XP</div>
+    </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">⚔️</div>
+      <div class="dc-stats-card-value"><%= user.conquestStreak || 0 %></div>
+      <div class="dc-stats-card-label">STREAK</div>
+    </div>
+  </div>
+
+  <!-- Character Stats -->
+  <div class="dc-stats-grid">
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">🧠</div>
+      <div class="dc-stats-card-value"><%= user.intellect || 0 %></div>
+      <div class="dc-stats-card-label">INTELLIGENCE</div>
+    </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">💪</div>
+      <div class="dc-stats-card-value"><%= user.strength || 0 %></div>
+      <div class="dc-stats-card-label">STRENGTH</div>
+    </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">⚡</div>
+      <div class="dc-stats-card-value"><%= user.agility || 0 %></div>
+      <div class="dc-stats-card-label">AGILITY</div>
+    </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">💎</div>
+      <div class="dc-stats-card-value"><%= user.charisma || 0 %></div>
+      <div class="dc-stats-card-label">CHARISMA</div>
+    </div>
   </div>
 
   <!-- Chart -->
   <div class="dc-chart-container">
-    <div class="dc-chart-title">⚔️ DAILY CONQUEST REPORT</div>
+    <div class="dc-chart-title" id="chartTitle">⚔️ DAILY CONQUEST REPORT</div>
     <canvas id="progressChart" height="120"></canvas>
   </div>
 
@@ -76,18 +110,46 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const dailyCompleted = <%= dailyCompleted %>;
-const dailyRemaining = <%= dailyRemaining %>;
+const dailyLabels    = <%= JSON.stringify(dailyChartLabels) %>;
+const dailyCompleted = <%= JSON.stringify(dailyChartCompleted) %>;
+const dailyRemaining = <%= JSON.stringify(dailyChartRemaining) %>;
+const weeklyLabels    = <%= JSON.stringify(weeklyChartLabels) %>;
+const weeklyCompleted = <%= JSON.stringify(weeklyChartCompleted) %>;
+const weeklyRemaining = <%= JSON.stringify(weeklyChartRemaining) %>;
+const monthlyLabels    = <%= JSON.stringify(monthlyChartLabels) %>;
+const monthlyCompleted = <%= JSON.stringify(monthlyChartCompleted) %>;
+const monthlyRemaining = <%= JSON.stringify(monthlyChartRemaining) %>;
+
+const datasets = {
+  daily: {
+    labels: dailyLabels,
+    conquered: dailyCompleted,
+    remaining: dailyRemaining,
+    title: '⚔️ DAILY CONQUEST REPORT'
+  },
+  weekly: {
+    labels: weeklyLabels,
+    conquered: weeklyCompleted,
+    remaining: weeklyRemaining,
+    title: '⚔️ WEEKLY CONQUEST REPORT'
+  },
+  monthly: {
+    labels: monthlyLabels,
+    conquered: monthlyCompleted,
+    remaining: monthlyRemaining,
+    title: '⚔️ MONTHLY CONQUEST REPORT'
+  }
+};
 
 const ctx = document.getElementById('progressChart').getContext('2d');
-new Chart(ctx, {
+const chart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: ['Today'],
+    labels: datasets.daily.labels,
     datasets: [
       {
         label: 'Conquered',
-        data: [dailyCompleted],
+        data: datasets.daily.conquered,
         backgroundColor: 'rgba(74, 140, 42, 0.75)',
         borderColor: 'rgba(74, 140, 42, 1)',
         borderWidth: 1,
@@ -95,7 +157,7 @@ new Chart(ctx, {
       },
       {
         label: 'Standing',
-        data: [dailyRemaining],
+        data: datasets.daily.remaining,
         backgroundColor: 'rgba(139, 26, 26, 0.65)',
         borderColor: 'rgba(192, 57, 43, 1)',
         borderWidth: 1,
@@ -123,9 +185,32 @@ new Chart(ctx, {
     }
   }
 });
+
 function switchTab(period) {
   document.querySelectorAll('.dc-period-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + period)?.classList.add('active');
-  // Weekly/Monthly: coming soon
+  document.getElementById('tab-' + period).classList.add('active');
+
+  const d = datasets[period];
+  document.getElementById('chartTitle').textContent = d.title;
+  chart.data.labels = d.labels;
+  chart.data.datasets[0].data = d.conquered;
+  chart.data.datasets[1].data = d.remaining;
+  chart.update();
+
+  // Update stats cards
+  if (period === 'daily') {
+    document.getElementById('stat-conquered').textContent = '<%= dailyCompleted %>';
+    document.getElementById('stat-remaining').textContent = '<%= dailyRemaining %>';
+  } else if (period === 'weekly') {
+    const wc = d.conquered.reduce((a,b) => a+b, 0);
+    const wr = d.remaining.reduce((a,b) => a+b, 0);
+    document.getElementById('stat-conquered').textContent = wc;
+    document.getElementById('stat-remaining').textContent = wr;
+  } else if (period === 'monthly') {
+    const mc = d.conquered.reduce((a,b) => a+b, 0);
+    const mr = d.remaining.reduce((a,b) => a+b, 0);
+    document.getElementById('stat-conquered').textContent = mc;
+    document.getElementById('stat-remaining').textContent = mr;
+  }
 }
 </script>

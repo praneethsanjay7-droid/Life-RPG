@@ -15,7 +15,7 @@ const taskSchema = new mongoose.Schema({
     y: { type: Number, default: 50 }
   },
   conquestCycle: { type: Number, default: 1 },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now }
 });
 
