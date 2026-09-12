@@ -1,15 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Details</title>
-</head>
-<body>
-    <h1><%=task.title%></h1>
-    <p>Start: <%=task.startTime%></p>
-    <p>End: <%=task.endTime%></p>
-    <p>Created: <%=task.createdAt%></p>
-    <a href="/allTasks">Back to all tasks</a>
-</body>
-</html>
+﻿<% layout("layouts/boilerplate") %>
+
+<header class="dc-header">
+  <a href="/allTasks" class="dc-header-brand">🐉 DRAGON'S CONQUEST</a>
+  <nav class="dc-header-nav">
+    <a href="/allTasks" class="dc-btn dc-btn-ghost">← Back to Realm</a>
+  </nav>
+</header>
+
+<div style="padding:2rem;max-width:560px;margin:0 auto;">
+  <div class="dc-modal" style="position:static;animation:none;max-width:100%;width:100%;">
+    <%
+      const isConquered = task.completed;
+      const castleEmoji = isConquered ? '🏚️' : (task.priority==='critical'?'🏯':'🏰');
+      const guardCount = {low:1,medium:2,high:3,critical:4}[task.priority] || 2;
+      const deadline = task.deadline ? task.deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No deadline';
+      const catIcons = {study:'📚',work:'⚒️',personal:'🧙',other:'🌐'};
+    %>
+    <div class="dc-details-castle"><%= castleEmoji %></div>
+    <div class="dc-details-name"><%= task.title.toUpperCase() %></div>
+    <div class="dc-details-status">
+      <% if (isConquered) { %>
+        <span class="dc-badge dc-badge-conquered">⚔️ CONQUERED</span>
+      <% } else { %>
+        <span class="dc-badge dc-badge-guarded">🛡️ KINGDOM GUARDED</span>
+      <% } %>
+    </div>
+    <div class="dc-details-desc"><%= task.description || 'No royal decree inscribed.' %></div>
+    <div class="dc-details-grid">
+      <div class="dc-details-field">
+        <div class="dc-details-field-label">⚔️ KINGDOM STRENGTH</div>
+        <div class="dc-details-field-value">
+          <span class="dc-badge dc-badge-<%= task.priority %>"><%= (task.priority||'medium').toUpperCase() %></span>
+        </div>
+      </div>
+      <div class="dc-details-field">
+        <div class="dc-details-field-label">📚 CATEGORY</div>
+        <div class="dc-details-field-value"><%= catIcons[task.category]||'🌐' %> <%= (task.category||'other').toUpperCase() %></div>
+      </div>
+      <div class="dc-details-field">
+        <div class="dc-details-field-label">⏳ SIEGE DEADLINE</div>
+        <div class="dc-details-field-value"><%= deadline %></div>
+      </div>
+      <div class="dc-details-field">
+        <div class="dc-details-field-label">🏰 STATUS</div>
+        <div class="dc-details-field-value"><%= isConquered ? 'Ruins' : 'Standing' %></div>
+      </div>
+    </div>
+    <% if (!isConquered) { %>
+      <div class="dc-details-guards">
+        <% for(let i=0;i<guardCount;i++) { %>🛡️<% } %>
+      </div>
+    <% } %>
+    <div class="dc-details-actions">
+      <a href="/editTask/<%= task._id %>" class="dc-btn dc-btn-gold dc-btn-full" style="text-align:center">📜 EDIT KINGDOM</a>
+      <form action="/deleteTask/<%= task._id %>" method="post" onsubmit="return confirm('Abandon this kingdom forever?')">
+        <button type="submit" class="dc-btn dc-btn-danger dc-btn-full">🚩 ABANDON KINGDOM</button>
+      </form>
+    </div>
+  </div>
+</div>

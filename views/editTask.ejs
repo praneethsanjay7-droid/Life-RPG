@@ -1,30 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Task</title>
-</head>
-<body>
-  <h1><%=taskDetails.title%></h1>
-  <a href="/allTasks">Back to all tasks</a>
-  <form action="/editTask/<%=taskDetails._id%>" method="post">
-    <label for="title">Title:</label>
-    <br>
-    <input type="text" id="title" name="title" value="<%=taskDetails.title%>" required>
-    <br>
-    <label for="startTime">Start time:</label>
-    <br>
-    <input type="datetime-local" id="startTime" name="startTime" value="<%=taskDetails.startTime.toISOString().slice(0,16)%>" required>
-    <br>
-    <label for="endTime">End time:</label>
-    <br>
-    <input type="datetime-local" id="endTime" name="endTime" value="<%=taskDetails.endTime.toISOString().slice(0,16)%>" required>
-    <br>
-    <label for="completed">Completed:</label>
-    <input type="checkbox" id="completed" name="completed" value="true" <%=taskDetails.completed ? 'checked' : ''%>>
-    <br>
-    <button type="submit">Edit Task</button>
-  </form>
-</body>
-</html>
+﻿<% layout("layouts/boilerplate") %>
+
+<header class="dc-header">
+  <a href="/allTasks" class="dc-header-brand">🐉 DRAGON'S CONQUEST</a>
+  <nav class="dc-header-nav">
+    <a href="/allTasks" class="dc-btn dc-btn-ghost">← Back to Realm</a>
+  </nav>
+</header>
+
+<div style="padding:2rem;max-width:560px;margin:0 auto;">
+  <div class="dc-modal" style="position:static;animation:none;max-width:100%;width:100%;">
+    <h2 class="dc-modal-title">📜 EDIT KINGDOM</h2>
+    <div class="dc-modal-divider">— Update the royal decree —</div>
+
+    <form action="/editTask/<%= taskDetails._id %>" method="post">
+      <div class="dc-form-group">
+        <label class="dc-label" for="title">🏰 Kingdom Name</label>
+        <input class="dc-input" type="text" id="title" name="title" value="<%= taskDetails.title %>" required maxlength="50">
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="description">📜 Royal Decree</label>
+        <textarea class="dc-textarea" id="description" name="description" rows="3"><%= taskDetails.description || '' %></textarea>
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="deadline">⏳ Siege Deadline</label>
+        <input class="dc-input" type="date" id="deadline" name="deadline"
+          value="<%= taskDetails.deadline ? taskDetails.deadline.toISOString().split('T')[0] : '' %>">
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label">⚔️ Kingdom Strength</label>
+        <input type="hidden" name="priority" id="priority-val" value="<%= taskDetails.priority || 'medium' %>">
+        <div class="dc-priority-group">
+          <% ['low','medium','high','critical'].forEach(p => { %>
+            <button type="button" class="dc-toggle-btn <%= taskDetails.priority===p ? 'active-'+p : '' %>"
+                    data-value="<%= p %>">
+              <%= p==='low'?'🟢 LOW':p==='medium'?'🟡 MEDIUM':p==='high'?'🔴 HIGH':'💀 CRITICAL' %>
+            </button>
+          <% }) %>
+        </div>
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label">📚 Category</label>
+        <input type="hidden" name="category" id="category-val" value="<%= taskDetails.category || 'other' %>">
+        <div class="dc-category-group">
+          <% ['study','work','personal','other'].forEach(c => { %>
+            <button type="button" class="dc-toggle-btn <%= taskDetails.category===c ? 'active-'+c : '' %>"
+                    data-value="<%= c %>">
+              <%= c==='study'?'📚 STUDY':c==='work'?'⚒️ WORK':c==='personal'?'🧙 PERSONAL':'🌐 OTHER' %>
+            </button>
+          <% }) %>
+        </div>
+      </div>
+      <div class="dc-form-group" style="display:flex;align-items:center;gap:0.8rem;">
+        <label class="dc-label" style="margin:0;">✓ Mark as Conquered</label>
+        <input type="checkbox" name="completed" value="true" <%= taskDetails.completed ? 'checked' : '' %>
+          style="width:18px;height:18px;accent-color:var(--dc-gold);">
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button type="submit" class="dc-btn dc-btn-primary" style="flex:1">💾 SAVE KINGDOM</button>
+        <a href="/allTasks" class="dc-btn dc-btn-ghost" style="flex:1;text-align:center">CANCEL</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.dc-priority-group .dc-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dc-priority-group .dc-toggle-btn').forEach(b => b.className = 'dc-toggle-btn');
+    btn.classList.add('active-' + btn.dataset.value);
+    document.getElementById('priority-val').value = btn.dataset.value;
+  });
+});
+document.querySelectorAll('.dc-category-group .dc-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dc-category-group .dc-toggle-btn').forEach(b => b.className = 'dc-toggle-btn');
+    btn.classList.add('active-' + btn.dataset.value);
+    document.getElementById('category-val').value = btn.dataset.value;
+  });
+});
+</script>

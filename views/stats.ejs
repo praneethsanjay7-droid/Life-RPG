@@ -1,60 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progress Stats</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <h1>Progress Statistics</h1>
-    <div>
-        <button id="dailyBtn" class="active">Daily</button>
-        <button id="weeklyBtn">Weekly</button>
-        <button id="monthlyBtn">Monthly</button>
+<%- layout('layouts/boilerplate') %>
+
+<header class="dc-header">
+  <a href="/allTasks" class="dc-header-brand">🐉 DRAGON'S CONQUEST</a>
+  <div class="dc-header-stats">
+    <div class="dc-stat-badge">🐉 Dragon Level: <span><%= user.dragonLevel || 1 %></span></div>
+    <div class="dc-stat-badge">⚔️ Streak: <span><%= user.conquestStreak || 0 %></span></div>
+  </div>
+  <nav class="dc-header-nav">
+    <a href="/allTasks" class="dc-btn dc-btn-ghost">← Back to Realm</a>
+  </nav>
+</header>
+
+<div class="dc-stats-layout">
+  <h1 class="dc-stats-title">📜 CONQUEST CHRONICLES</h1>
+  <p class="dc-stats-subtitle">The annals of your dragon's conquest</p>
+
+  <!-- Period Tabs -->
+  <div class="dc-period-tabs">
+    <button class="dc-period-tab active" id="tab-daily" onclick="switchTab('daily')">DAILY</button>
+    <button class="dc-period-tab coming-soon" title="Coming Soon" disabled>WEEKLY</button>
+    <button class="dc-period-tab coming-soon" title="Coming Soon" disabled>MONTHLY</button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="dc-stats-grid">
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">🔥</div>
+      <div class="dc-stats-card-value" id="stat-conquered"><%= dailyCompleted %></div>
+      <div class="dc-stats-card-label">TODAY CONQUERED</div>
     </div>
-    <canvas id="progressChart" width="400" height="200"></canvas>
-    <br>
-    <a href="/allTasks">Back to all tasks</a>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">🏰</div>
+      <div class="dc-stats-card-value" id="stat-remaining"><%= dailyRemaining %></div>
+      <div class="dc-stats-card-label">STILL STANDING</div>
+    </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">⚔️</div>
+      <div class="dc-stats-card-value"><%= totalConquered %></div>
+      <div class="dc-stats-card-label">ALL TIME CONQUERED</div>
+    </div>
+    <div class="dc-stats-card">
+      <div class="dc-stats-card-icon">🐉</div>
+      <div class="dc-stats-card-value"><%= user.dragonLevel || 1 %></div>
+      <div class="dc-stats-card-label">DRAGON LEVEL</div>
+    </div>
+  </div>
 
-    <script>
-        const dailyCompleted = <%= dailyCompleted %>;
-        const dailyRemaining = <%= dailyRemaining %>;
+  <!-- Chart -->
+  <div class="dc-chart-container">
+    <div class="dc-chart-title">⚔️ DAILY CONQUEST REPORT</div>
+    <canvas id="progressChart" height="120"></canvas>
+  </div>
 
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Today'],
-                datasets: [
-                    {
-                        label: 'Completed',
-                        data: [dailyCompleted],
-                        backgroundColor: 'rgba(75, 192, 75, 0.7)',
-                        stack: 'stack1'
-                    },
-                    {
-                        label: 'Remaining',
-                        data: [dailyRemaining],
-                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                        stack: 'stack1'
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, beginAtZero: true }
-                }
-            }
-        });
+  <!-- Conquered Chronicle List -->
+  <div class="dc-conquered-chronicle">
+    <div class="dc-chronicle-title">🏚️ FALLEN KINGDOMS</div>
+    <% if (conqueredTasks && conqueredTasks.length > 0) { %>
+      <% conqueredTasks.slice(0,10).forEach(task => { %>
+        <div class="dc-chronicle-item">
+          <span class="dc-chronicle-icon">🏚️</span>
+          <span class="dc-chronicle-name"><%= task.title %></span>
+          <% if (task.completedAt) { %>
+            <span class="dc-chronicle-date"><%= task.completedAt.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) %></span>
+          <% } %>
+          <span class="dc-chronicle-check">✓</span>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div style="text-align:center;padding:1.5rem;color:var(--dc-iron2);font-style:italic;">
+        No kingdoms conquered yet. The realm stands defiant.
+      </div>
+    <% } %>
+  </div>
+</div>
 
-        document.getElementById('dailyBtn').addEventListener('click', function() {
-            chart.data.labels = ['Today'];
-            chart.data.datasets[0].data = [dailyCompleted];
-            chart.data.datasets[1].data = [dailyRemaining];
-            chart.update();
-        });
-    </script>
-</body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const dailyCompleted = <%= dailyCompleted %>;
+const dailyRemaining = <%= dailyRemaining %>;
+
+const ctx = document.getElementById('progressChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Today'],
+    datasets: [
+      {
+        label: 'Conquered',
+        data: [dailyCompleted],
+        backgroundColor: 'rgba(74, 140, 42, 0.75)',
+        borderColor: 'rgba(74, 140, 42, 1)',
+        borderWidth: 1,
+        stack: 'stack1'
+      },
+      {
+        label: 'Standing',
+        data: [dailyRemaining],
+        backgroundColor: 'rgba(139, 26, 26, 0.65)',
+        borderColor: 'rgba(192, 57, 43, 1)',
+        borderWidth: 1,
+        stack: 'stack1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: '#c9a86c', font: { family: 'Cinzel, serif', size: 11 } } }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: { color: '#8b6914' },
+        grid:  { color: 'rgba(60,50,40,0.4)' }
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: { color: '#8b6914', stepSize: 1 },
+        grid:  { color: 'rgba(60,50,40,0.4)' }
+      }
+    }
+  }
+});
+function switchTab(period) {
+  document.querySelectorAll('.dc-period-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + period)?.classList.add('active');
+  // Weekly/Monthly: coming soon
+}
+</script>

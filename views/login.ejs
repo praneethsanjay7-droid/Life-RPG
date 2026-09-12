@@ -1,23 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <h1>Login</h1>
-    <form action="/login" method="post">
-        <label for="email">Email:</label>
-        <br>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">Password:</label>
-        <br>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="/register">Register</a></p>
-</body>
-</html>
+<% layout("layouts/auth") %>
+<div class="dc-auth-card">
+  <div class="dc-auth-emblem">🐉</div>
+  <div class="dc-auth-title">DRAGON'S CONQUEST</div>
+  <div class="dc-auth-subtitle">Enter the realm, commander</div>
+
+  <form action="/login" method="post">
+    <div class="dc-form-group">
+      <label class="dc-label" for="email">Email</label>
+      <input class="dc-input" type="email" id="email" name="email" required autocomplete="email" placeholder="your@email.com">
+    </div>
+    <div class="dc-form-group">
+      <label class="dc-label" for="password">Password</label>
+      <input class="dc-input" type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <button type="submit" class="dc-btn dc-btn-primary dc-btn-full">⚔️ ENTER THE REALM</button>
+  </form>
+
+  <div class="dc-auth-divider">— or —</div>
+  <div class="dc-auth-link">
+    No account yet? <a href="/register">Pledge your allegiance</a>
+  </div>
+</div>

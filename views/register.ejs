@@ -1,27 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-</head>
-<body>
-    <h1>Register</h1>
-    <form action="/register" method="post">
-        <label for="username">Username:</label>
-        <br>
-        <input type="text" id="username" name="username" required>
-        <br>
-        <label for="email">Email:</label>
-        <br>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">Password:</label>
-        <br>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <a href="/login">Login</a></p>
-</body>
-</html>
+<%- layout('layouts/auth') %>
+
+<div class="dc-auth-card">
+  <div class="dc-auth-emblem">🐲</div>
+  <div class="dc-auth-title">FORGE YOUR LEGEND</div>
+  <div class="dc-auth-subtitle">Claim your place among the conquerors</div>
+
+  <form action="/register" method="post">
+    <div class="dc-form-group">
+      <label class="dc-label" for="username">Dragon Name</label>
+      <input class="dc-input" type="text" id="username" name="username" required autocomplete="username" placeholder="Your name in the realm">
+    </div>
+    <div class="dc-form-group">
+      <label class="dc-label" for="email">Email</label>
+      <input class="dc-input" type="email" id="email" name="email" required autocomplete="email" placeholder="your@email.com">
+    </div>
+    <div class="dc-form-group">
+      <label class="dc-label" for="password">Password</label>
+      <input class="dc-input" type="password" id="password" name="password" required autocomplete="new-password" placeholder="••••••••">
+    </div>
+    <button type="submit" class="dc-btn dc-btn-primary dc-btn-full">🔥 CLAIM YOUR DESTINY</button>
+  </form>
+
+  <div class="dc-auth-divider">— or —</div>
+  <div class="dc-auth-link">
+    Already a dragon? <a href="/login">Enter the realm</a>
+  </div>
+</div>

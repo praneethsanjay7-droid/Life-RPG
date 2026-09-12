@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dragon's Conquest</title>
+  <link rel="stylesheet" href="/css/dragons-conquest.css">
+</head>
+<body class="dc-body dc-auth-body">
+<div class="dc-vignette"></div>
+<% if (messages.error && messages.error.length) { %>
+  <div class="dc-toast dc-toast-error" data-auto-dismiss>
+    <div class="dc-toast-icon">🔥</div>
+    <div class="dc-toast-content">
+      <div class="dc-toast-title">ACCESS DENIED</div>
+      <div class="dc-toast-msg"><%= messages.error[0] %></div>
+    </div>
+  </div>
+<% } %>
+<% if (messages.success && messages.success.length) { %>
+  <div class="dc-toast dc-toast-success" data-auto-dismiss>
+    <div class="dc-toast-icon">⚔️</div>
+    <div class="dc-toast-content">
+      <div class="dc-toast-title">REALM UNLOCKED</div>
+      <div class="dc-toast-msg"><%= messages.success[0] %></div>
+    </div>
+  </div>
+<% } %>
+<%- body %>
+<script src="/js/app.js"></script>
+</body>
+</html>

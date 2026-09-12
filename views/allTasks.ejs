@@ -1,41 +1,206 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All the tasks</title>
-</head>
-<body>
-    
-<h1>All the tasks</h1>
-    <% if(user){%>
-        <div>Logged in as: <%=user.username%> | <a href="/logout">Logout</a></div>
-    <% }else{ %>
-        <div><a href="/login">Login</a></div>
-    <% }%>
-    <div>
-        Total tasks: <%=total%> | Completed: <%=completed%> | Remaining: <%=remaining%>
+﻿<% layout("layouts/boilerplate") %>
+
+<!-- HEADER -->
+<header class="dc-header">
+  <a href="/allTasks" class="dc-header-brand">🐉 DRAGON'S CONQUEST</a>
+  <div class="dc-header-stats">
+    <div class="dc-stat-badge">🔥 Conquered: <span id="count-conquered"><%= conquered %></span></div>
+    <div class="dc-stat-badge">🏰 Remaining: <span id="count-remaining"><%= remaining %></span></div>
+    <div class="dc-stat-badge">⚔️ Streak: <span><%= user.conquestStreak || 0 %></span></div>
+    <div class="dc-stat-badge">🐉 Dragon Level: <span><%= user.dragonLevel || 1 %></span></div>
+  </div>
+  <nav class="dc-header-nav">
+    <a href="/stats" class="dc-btn dc-btn-ghost">📜 Chronicles</a>
+    <a href="/logout" class="dc-btn dc-btn-ghost">Exit Realm</a>
+  </nav>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="dc-layout">
+
+  <!-- MAP -->
+  <div class="dc-map-wrapper">
+    <div class="dc-map" id="kingdom-map">
+
+      <!-- Dragon -->
+      <div class="dc-dragon" id="dragon">
+        🐉
+        <div class="dc-dragon-fire">🔥</div>
+      </div>
+
+      <!-- Kingdoms -->
+      <% for(let task of tasks) { %>
+        <%
+          const priorityClass = task.priority || 'medium';
+          const conqueredClass = task.completed ? 'dc-kingdom--conquered' : '';
+          const overdueClass = task.isOverdue ? 'dc-kingdom--overdue' : '';
+          const castleEmoji = task.completed ? '🏚️' : (task.priority === 'critical' ? '🏯' : '🏰');
+          const guardCount = { low:1, medium:2, high:3, critical:4 }[task.priority] || 2;
+          const deadlineISO = task.deadline ? task.deadline.toISOString() : '';
+        %>
+        <div class="dc-kingdom dc-kingdom--<%= priorityClass %> <%= conqueredClass %> <%= overdueClass %>"
+             style="left:<%= task.mapPosition ? task.mapPosition.x : 50 %>%;top:<%= task.mapPosition ? task.mapPosition.y : 50 %>%;"
+             data-task-id="<%= task._id %>"
+             data-task-title="<%= task.title %>"
+             data-task-desc="<%= (task.description || '').replace(/"/g, '&quot;') %>"
+             data-task-deadline="<%= deadlineISO %>"
+             data-task-priority="<%= task.priority || 'medium' %>"
+             data-task-category="<%= task.category || 'other' %>"
+             data-task-completed="<%= task.completed %>">
+          <div class="dc-kingdom-flame">🔥</div>
+          <div class="dc-kingdom-castle"><%= castleEmoji %></div>
+          <div class="dc-kingdom-name"><%= task.title.substring(0,14).toUpperCase() %></div>
+          <% if (!task.completed) { %>
+            <div class="dc-kingdom-guards">
+              <% for(let i=0; i<guardCount; i++) { %><span class="dc-guard">🛡️</span><% } %>
+            </div>
+            <% if (task.isOverdue) { %>
+              <div class="dc-kingdom-status dc-status-siege">⚠ UNDER SIEGE</div>
+            <% } else if (task.deadlineApproaching) { %>
+              <div class="dc-kingdom-status dc-status-warning">⏰ SIEGE APPROACHING</div>
+            <% } else { %>
+              <div class="dc-kingdom-status dc-status-guarded">🛡️ GUARDED</div>
+            <% } %>
+          <% } else { %>
+            <div class="dc-kingdom-status dc-status-conquered">CONQUERED ✓</div>
+          <% } %>
+        </div>
+      <% } %>
+
+      <!-- Empty state -->
+      <% if (tasks.length === 0) { %>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5;">
+          <div style="font-size:3rem;margin-bottom:0.5rem;">🗺️</div>
+          <div style="font-family:var(--font-cinzel);font-size:0.9rem;color:var(--dc-bronze);letter-spacing:2px;">THE REALM AWAITS ITS FIRST KINGDOM</div>
+          <div style="font-size:0.8rem;color:var(--dc-iron2);margin-top:0.3rem;font-style:italic;">Click "Establish New Kingdom" to begin your conquest</div>
+        </div>
+      <% } %>
     </div>
-    <form action="/newTask" method="get">
-        <button>New Task</button>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="dc-sidebar">
+    <div class="dc-sidebar-header">⚔️ CONQUERED KINGDOMS</div>
+    <div class="dc-conquered-list" id="conquered-list">
+      <% const completedTasks = tasks.filter(t => t.completed); %>
+      <% if (completedTasks.length === 0) { %>
+        <div class="dc-conquered-empty">No kingdoms conquered yet.<br>The realm stands defiant.</div>
+      <% } else { %>
+        <% for(let task of completedTasks) { %>
+          <div class="dc-conquered-item" onclick="openKingdomDetails({id:'<%= task._id %>',title:'<%= task.title.replace(/'/g,`\\'`) %>',description:'<%= (task.description||'').replace(/'/g,`\\'`) %>',priority:'<%= task.priority %>',category:'<%= task.category %>',deadline:'<%= task.deadline ? task.deadline.toISOString() : '' %>',completed:'true'})">
+            <span>🏚️</span>
+            <span class="dc-conquered-item-name"><%= task.title %></span>
+            <span class="dc-conquered-item-check">✓</span>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+
+    <!-- Evolution progress -->
+    <div class="dc-evolution-panel">
+      <div class="dc-evolution-label">🐉 DRAGON EVOLUTION PROGRESS</div>
+      <div class="dc-evolution-track">
+        <div class="dc-evolution-fill" id="evolution-fill" style="width:<%= total > 0 ? Math.round((conquered/total)*100) : 0 %>%"></div>
+      </div>
+      <div style="font-family:var(--font-cinzel);font-size:0.55rem;color:var(--dc-bronze);text-align:center;letter-spacing:1px;">
+        <%= conquered %> / <%= total %> KINGDOMS CONQUERED
+      </div>
+    </div>
+
+    <!-- Establish Kingdom button -->
+    <button class="dc-establish-btn" onclick="openModal('establish-overlay')">
+      ⚔️ ESTABLISH NEW KINGDOM
+    </button>
+  </div>
+
+</div>
+
+<!-- ========== ESTABLISH KINGDOM MODAL ========== -->
+<div class="dc-overlay hidden" id="establish-overlay">
+  <div class="dc-modal">
+    <button class="dc-modal-close" onclick="closeModal('establish-overlay')">✕</button>
+    <h2 class="dc-modal-title">⚔️ ESTABLISH NEW KINGDOM</h2>
+    <div class="dc-modal-divider">— Inscribe your royal decree —</div>
+    <form action="/newTask" method="post">
+      <div class="dc-form-group">
+        <label class="dc-label" for="title">🏰 Kingdom Name</label>
+        <input class="dc-input" type="text" id="title" name="title" placeholder="Name your kingdom" required maxlength="50">
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="description">📜 Royal Decree</label>
+        <textarea class="dc-textarea" id="description" name="description" placeholder="Describe the conquest objective..." rows="2"></textarea>
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label" for="deadline">⏳ Siege Deadline</label>
+        <input class="dc-input" type="date" id="deadline" name="deadline">
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label">⚔️ Kingdom Strength (Priority)</label>
+        <input type="hidden" name="priority" id="priority-val" value="medium">
+        <div class="dc-priority-group">
+          <button type="button" class="dc-toggle-btn" data-value="low">🟢 LOW</button>
+          <button type="button" class="dc-toggle-btn active-medium" data-value="medium">🟡 MEDIUM</button>
+          <button type="button" class="dc-toggle-btn" data-value="high">🔴 HIGH</button>
+          <button type="button" class="dc-toggle-btn" data-value="critical">💀 CRITICAL</button>
+        </div>
+      </div>
+      <div class="dc-form-group">
+        <label class="dc-label">📚 Category</label>
+        <input type="hidden" name="category" id="category-val" value="other">
+        <div class="dc-category-group">
+          <button type="button" class="dc-toggle-btn" data-value="study">📚 STUDY</button>
+          <button type="button" class="dc-toggle-btn" data-value="work">⚒️ WORK</button>
+          <button type="button" class="dc-toggle-btn active-other" data-value="personal">🧙 PERSONAL</button>
+          <button type="button" class="dc-toggle-btn" data-value="other">🌐 OTHER</button>
+        </div>
+      </div>
+      <button type="submit" class="dc-btn dc-btn-primary dc-btn-full">🏰 ESTABLISH KINGDOM</button>
     </form>
-    <form action="/stats" method="get">
-        <button>Stats</button>
-    </form>
-    <hr>
-    <% for(task of tasks){%>
-        <h1><%=task.title%></h1>
-        <form action="/taskDetails/<%=task._id%>" method="get">
-            <button>Get details</button>
-        </form>
-        <form action="/editTask/<%=task._id%>" method="get">
-            <button>Edit task</button>
-        </form>
-        <form action="/deleteTask/<%=task._id%>" method="post">
-            <button>Delete Task</button>
-        </form>
-        <br>
-        <hr>
-    <%}%>
-</body>
-</html>
+  </div>
+</div>
+
+<!-- ========== KINGDOM DETAILS MODAL ========== -->
+<div class="dc-overlay hidden" id="details-overlay">
+  <div class="dc-modal" id="details-modal">
+    <button class="dc-modal-close" onclick="closeModal('details-overlay')">✕</button>
+    <p style="text-align:center;color:var(--dc-bronze);font-style:italic;">Loading kingdom details...</p>
+  </div>
+</div>
+
+<!-- ========== COMPLETION CARD ========== -->
+<div class="dc-completion-card" id="completion-card">
+  <div class="dc-completion-icon">🔥</div>
+  <div class="dc-completion-title">KINGDOM CONQUERED</div>
+  <div class="dc-completion-name">—</div>
+  <div class="dc-completion-check">✓ TASK COMPLETED</div>
+</div>
+
+<!-- ========== EVOLUTION OVERLAY ========== -->
+<div class="dc-evolution-overlay hidden" id="evolution-overlay">
+  <div class="dc-evolution-content">
+    <div class="dc-evolution-dragon-char">🐲</div>
+    <h1 class="dc-evolution-title">ALL KINGDOMS CONQUERED</h1>
+    <h2 class="dc-evolution-subtitle">THE DRAGON HAS EVOLVED</h2>
+    <div class="dc-evolution-level">🐉 DRAGON LEVEL <span id="evolution-new-level"><%= (user.dragonLevel||1)+1 %></span></div>
+    <p style="font-family:var(--font-cinzel);font-size:0.75rem;color:var(--dc-parchment);letter-spacing:2px;text-align:center;">THE REALM HAS BEEN MASTERED</p>
+    <button class="dc-btn dc-btn-primary" onclick="beginNewConquest()" style="padding:0.8rem 2rem;font-size:0.8rem;">⚔️ BEGIN NEW CONQUEST</button>
+  </div>
+</div>
+
+<script>
+// Wire up toggle buttons for the establish modal
+document.querySelectorAll('.dc-priority-group .dc-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dc-priority-group .dc-toggle-btn').forEach(b => b.className = 'dc-toggle-btn');
+    btn.classList.add('active-' + btn.dataset.value);
+    document.getElementById('priority-val').value = btn.dataset.value;
+  });
+});
+document.querySelectorAll('.dc-category-group .dc-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dc-category-group .dc-toggle-btn').forEach(b => b.className = 'dc-toggle-btn');
+    btn.classList.add('active-' + btn.dataset.value);
+    document.getElementById('category-val').value = btn.dataset.value;
+  });
+});
+</script>
