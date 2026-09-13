@@ -10,7 +10,13 @@ const LocalStrategy  = require("passport-local").Strategy;
 const flash          = require("connect-flash");
 const Task           = require("./Models/Tasks");
 const User           = require("./Models/User");
-const port           = process.env.PORT || 9090;
+const port = process.env.PORT || 9090;
+
+if (require.main === module) {
+  app.listen(port, () => console.log(`Dragon's Conquest listening on port ${port}`));
+}
+
+module.exports = app;
 
 // --- Map positions for kingdoms
 const MAP_POSITIONS = [
@@ -461,5 +467,3 @@ app.post("/shop/buy", isAuthenticated, async (req, res) => {
     res.redirect("/shop");
   }
 });
-
-app.listen(port, () => console.log(`Dragon's Conquest listening on port ${port}`));

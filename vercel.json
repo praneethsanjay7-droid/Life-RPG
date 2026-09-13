@@ -1,9 +1,13 @@
 ﻿{
-  "version": 2,
-  "builds": [
-    { "src": "index.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "index.js" }
-  ]
+  "buildCommand": "npm install",
+  "devCommand": "npm run start",
+  "installCommand": "npm install",
+  "startCommand": "node index.js",
+  "framework": "custom",
+  "regions": ["iad1"],
+  "env": {
+    "MONGODB_URI": "",
+    "SESSION_SECRET": "",
+    "PORT": "9090"
+  }
 }

@@ -3,7 +3,7 @@ const Task = require("./Models/Tasks");
 const User = require("./Models/User");
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/lifePRG");
+  await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lifePRG");
 }
 
 const seedTasks = [
