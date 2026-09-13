@@ -130,13 +130,14 @@ app.get("/allTasks", isAuthenticated, async (req, res) => {
   const conquered = tasks.filter(t => t.completed).length;
   const remaining = total - conquered;
 
-  // Attach deadline status
-  const tasksWithStatus = tasks.map(t => ({
-    ...t.toObject(),
-    deadlineStatus:     getDeadlineStatus(t),
-    isOverdue:          getDeadlineStatus(t) === "overdue",
-    deadlineApproaching:getDeadlineStatus(t) === "approaching",
-  }));
+  const tasksWithStatus = tasks.map(t => {
+    const obj = t.toObject();
+    obj.deadlineStatus     = getDeadlineStatus(t);
+    obj.isOverdue          = getDeadlineStatus(t) === "overdue";
+    obj.deadlineApproaching = getDeadlineStatus(t) === "approaching";
+    if (!obj.mapPosition) obj.mapPosition = { x: 50, y: 50 };
+    return obj;
+  });
 
   res.render("allTasks.ejs", {
     tasks: tasksWithStatus,
@@ -204,7 +205,7 @@ app.get("/logout", (req, res) => {
 app.post("/newTask", isAuthenticated, async (req, res) => {
   try {
     const { title, description, priority, category, deadline, startTime, endTime } = req.body;
-    const cycle = req.user.conquestStreak + 1;
+const cycle = (req.user.conquestStreak || 0) + 1;
 
     // Get existing positions for this user+cycle
     const existing = await Task.find({ user: req.user._id, conquestCycle: cycle }, "mapPosition");
@@ -325,7 +326,7 @@ app.post("/editTask/:id", isAuthenticated, async (req, res) => {
         endTime: endTime ? new Date(endTime) : undefined,
         completed: completed === "true"
       },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
     req.flash("success", "Kingdom updated.");
     res.redirect("/allTasks");
@@ -354,8 +355,8 @@ app.get("/stats", isAuthenticated, async (req, res) => {
   const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
 
   const allTasks = await Task.find({ user: req.user._id });
-  const cycle = req.user.conquestStreak + 1;
-  const cycleTasks = allTasks.filter(t => t.conquestCycle === cycle);
+  const cycle = (req.user.conquestStreak || 0) + 1;
+  const cycleTasks = allTasks.filter(t => (t.toObject ? t.toObject().conquestCycle : t.conquestCycle) === cycle);
 
   const dailyCompleted = await Task.countDocuments({
     user: req.user._id, completed: true,
@@ -365,7 +366,8 @@ app.get("/stats", isAuthenticated, async (req, res) => {
 
   const conqueredTasks = allTasks
     .filter(t => t.completed)
-    .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+    .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))
+    .map(t => { const obj = t.toObject(); if (!obj.mapPosition) obj.mapPosition = { x: 50, y: 50 }; return obj; });
 
   // --- Daily chart data (last 7 days)
   const dailyChartLabels = [];

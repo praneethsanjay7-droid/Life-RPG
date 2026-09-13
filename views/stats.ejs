@@ -83,7 +83,8 @@
   <!-- Chart -->
   <div class="dc-chart-container">
     <div class="dc-chart-title" id="chartTitle">⚔️ DAILY CONQUEST REPORT</div>
-    <canvas id="progressChart" height="120"></canvas>
+    <canvas id="progressChart" width="800" height="120"></canvas>
+    <div id="chartNoData" class="dc-chronicle-empty" style="display:none;text-align:center;padding:2rem;color:var(--dc-bronze);font-style:italic;">No conquest data for this period yet. Complete kingdoms to see your report.</div>
   </div>
 
   <!-- Conquered Chronicle List -->
@@ -108,17 +109,18 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>window.__chartFail = false;</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="window.__chartFail = true;var c=document.getElementById('progressChart');var n=document.getElementById('chartNoData');if(c)c.style.display='none';if(n){n.style.display='block';n.textContent='Chart library unavailable. Complete kingdoms to generate your report.';}"></script>
 <script>
-const dailyLabels    = <%= JSON.stringify(dailyChartLabels) %>;
-const dailyCompleted = <%= JSON.stringify(dailyChartCompleted) %>;
-const dailyRemaining = <%= JSON.stringify(dailyChartRemaining) %>;
-const weeklyLabels    = <%= JSON.stringify(weeklyChartLabels) %>;
-const weeklyCompleted = <%= JSON.stringify(weeklyChartCompleted) %>;
-const weeklyRemaining = <%= JSON.stringify(weeklyChartRemaining) %>;
-const monthlyLabels    = <%= JSON.stringify(monthlyChartLabels) %>;
-const monthlyCompleted = <%= JSON.stringify(monthlyChartCompleted) %>;
-const monthlyRemaining = <%= JSON.stringify(monthlyChartRemaining) %>;
+var dailyLabels    = <%= JSON.stringify(dailyChartLabels) %>;
+var dailyCompleted = <%= JSON.stringify(dailyChartCompleted) %>;
+var dailyRemaining = <%= JSON.stringify(dailyChartRemaining) %>;
+var weeklyLabels    = <%= JSON.stringify(weeklyChartLabels) %>;
+var weeklyCompleted = <%= JSON.stringify(weeklyChartCompleted) %>;
+var weeklyRemaining = <%= JSON.stringify(weeklyChartRemaining) %>;
+var monthlyLabels    = <%= JSON.stringify(monthlyChartLabels) %>;
+var monthlyCompleted = <%= JSON.stringify(monthlyChartCompleted) %>;
+var monthlyRemaining = <%= JSON.stringify(monthlyChartRemaining) %>;
 
 const datasets = {
   daily: {
@@ -141,50 +143,90 @@ const datasets = {
   }
 };
 
-const ctx = document.getElementById('progressChart').getContext('2d');
-const chart = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: datasets.daily.labels,
-    datasets: [
-      {
-        label: 'Conquered',
-        data: datasets.daily.conquered,
-        backgroundColor: 'rgba(74, 140, 42, 0.75)',
-        borderColor: 'rgba(74, 140, 42, 1)',
-        borderWidth: 1,
-        stack: 'stack1'
-      },
-      {
-        label: 'Standing',
-        data: datasets.daily.remaining,
-        backgroundColor: 'rgba(139, 26, 26, 0.65)',
-        borderColor: 'rgba(192, 57, 43, 1)',
-        borderWidth: 1,
-        stack: 'stack1'
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: '#c9a86c', font: { family: 'Cinzel, serif', size: 11 } } }
-    },
-    scales: {
-      x: {
-        stacked: true,
-        ticks: { color: '#8b6914' },
-        grid:  { color: 'rgba(60,50,40,0.4)' }
-      },
-      y: {
-        stacked: true,
-        beginAtZero: true,
-        ticks: { color: '#8b6914', stepSize: 1 },
-        grid:  { color: 'rgba(60,50,40,0.4)' }
-      }
-    }
+function hasData(arr) {
+  return arr && arr.length > 0 && arr.some(v => v && v > 0);
+}
+
+function hasAnyData(d) {
+  return hasData(d.conquered) || hasData(d.remaining);
+}
+
+let chart = null;
+
+function initChart(period) {
+  const canvas = document.getElementById('progressChart');
+  const noData = document.getElementById('chartNoData');
+  const d = datasets[period];
+
+  if (!canvas) return;
+
+  const showData = hasAnyData(d);
+  canvas.style.display = showData ? '' : 'none';
+  noData.style.display = showData ? 'none' : 'block';
+
+  if (window.__chartFail || typeof Chart === 'undefined') {
+    canvas.style.display = 'none';
+    noData.style.display = 'block';
+    noData.textContent = 'Chart library unavailable. Complete kingdoms to generate your report.';
+    return;
   }
-});
+
+  if (!showData) return;
+
+  try {
+    if (chart) { chart.destroy(); chart = null; }
+    const ctx = canvas.getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: d.labels,
+        datasets: [
+          {
+            label: 'Conquered',
+            data: d.conquered,
+            backgroundColor: 'rgba(74, 140, 42, 0.75)',
+            borderColor: 'rgba(74, 140, 42, 1)',
+            borderWidth: 1,
+            stack: 'stack1',
+            borderRadius: 3
+          },
+          {
+            label: 'Standing',
+            data: d.remaining,
+            backgroundColor: 'rgba(139, 26, 26, 0.65)',
+            borderColor: 'rgba(192, 57, 43, 1)',
+            borderWidth: 1,
+            stack: 'stack1',
+            borderRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#c4aa78', font: { family: 'Cinzel, serif', size: 11 } } }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            ticks: { color: '#8b6914' },
+            grid:  { color: 'rgba(60,50,40,0.4)' }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: { color: '#8b6914', stepSize: 1 },
+            grid:  { color: 'rgba(60,50,40,0.4)' }
+          }
+        }
+      }
+    });
+  } catch(e) {
+    canvas.style.display = 'none';
+    noData.style.display = 'block';
+    noData.textContent = 'Error rendering chart: ' + e.message;
+  }
+}
 
 function switchTab(period) {
   document.querySelectorAll('.dc-period-tab').forEach(t => t.classList.remove('active'));
@@ -192,25 +234,24 @@ function switchTab(period) {
 
   const d = datasets[period];
   document.getElementById('chartTitle').textContent = d.title;
-  chart.data.labels = d.labels;
-  chart.data.datasets[0].data = d.conquered;
-  chart.data.datasets[1].data = d.remaining;
-  chart.update();
+  initChart(period);
 
   // Update stats cards
   if (period === 'daily') {
     document.getElementById('stat-conquered').textContent = '<%= dailyCompleted %>';
     document.getElementById('stat-remaining').textContent = '<%= dailyRemaining %>';
   } else if (period === 'weekly') {
-    const wc = d.conquered.reduce((a,b) => a+b, 0);
-    const wr = d.remaining.reduce((a,b) => a+b, 0);
+    const wc = d.conquered.reduce((a,b) => a + (b||0), 0);
+    const wr = d.remaining.reduce((a,b) => a + (b||0), 0);
     document.getElementById('stat-conquered').textContent = wc;
     document.getElementById('stat-remaining').textContent = wr;
   } else if (period === 'monthly') {
-    const mc = d.conquered.reduce((a,b) => a+b, 0);
-    const mr = d.remaining.reduce((a,b) => a+b, 0);
+    const mc = d.conquered.reduce((a,b) => a + (b||0), 0);
+    const mr = d.remaining.reduce((a,b) => a + (b||0), 0);
     document.getElementById('stat-conquered').textContent = mc;
     document.getElementById('stat-remaining').textContent = mr;
   }
 }
+
+initChart('daily');
 </script>

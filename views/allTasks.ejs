@@ -92,8 +92,9 @@
       <% if (completedTasks.length === 0) { %>
         <div class="dc-conquered-empty">No kingdoms conquered yet.<br>The realm stands defiant.</div>
       <% } else { %>
+<% const escapeStr = (s) => (s || '').replace(/'/g, "\\'"); %>
         <% for(let task of completedTasks) { %>
-          <div class="dc-conquered-item" onclick="openKingdomDetails({id:'<%= task._id %>',title:'<%= task.title.replace(/'/g,`\\'`) %>',description:'<%= (task.description||'').replace(/'/g,`\\'`) %>',priority:'<%= task.priority %>',category:'<%= task.category %>',deadline:'<%= task.deadline ? task.deadline.toISOString() : '' %>',completed:'true'})">
+          <div class="dc-conquered-item" onclick="openKingdomDetails({id:'<%= task._id %>',title:'<%= escapeStr(task.title) %>',description:'<%= escapeStr(task.description) %>',priority:'<%= task.priority %>',category:'<%= task.category %>',deadline:'<%= task.deadline ? task.deadline.toISOString() : '' %>',completed:'true'})">
             <span>🏚️</span>
             <span class="dc-conquered-item-name"><%= task.title %></span>
             <span class="dc-conquered-item-check">✓</span>
